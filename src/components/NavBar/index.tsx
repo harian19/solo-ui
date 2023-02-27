@@ -5,18 +5,23 @@ import { chainIdToBackendName } from 'graphql/data/util'
 import { useIsNftPage } from 'hooks/useIsNftPage'
 import { Box } from 'nft/components/Box'
 import { Row } from 'nft/components/Flex'
-import { UniIcon } from 'nft/components/icons'
 import { useProfilePageState } from 'nft/hooks'
 import { ProfilePageStateType } from 'nft/types'
 import { ReactNode } from 'react'
 import { NavLink, NavLinkProps, useLocation, useNavigate } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
+import soloDarkLogo from '../../assets/solo/solo-dark-logo.png'
 import { Bag } from './Bag'
 import { ChainSelector } from './ChainSelector'
 import { MenuDropdown } from './MenuDropdown'
 import { SearchBar } from './SearchBar'
 import * as styles from './style.css'
+
+const Logo = styled.img`
+  width: 48px;
+  height: 48px;
+`
 
 const Nav = styled.nav`
   padding: 20px 12px;
@@ -89,10 +94,8 @@ const Navbar = () => {
         <Box display="flex" height="full" flexWrap="nowrap">
           <Box className={styles.leftSideContainer}>
             <Box className={styles.logoContainer}>
-              <UniIcon
-                width="48"
-                height="48"
-                data-testid="uniswap-logo"
+              <Logo
+                src={soloDarkLogo}
                 className={styles.logo}
                 onClick={() => {
                   navigate({

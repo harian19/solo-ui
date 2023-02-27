@@ -1,10 +1,5 @@
-import { Trans } from '@lingui/macro'
 import { Trace, TraceEvent } from '@uniswap/analytics'
 import { BrowserEvent, InterfaceElementName, InterfacePageName, SharedEventName } from '@uniswap/analytics-events'
-import { AboutFooter } from 'components/About/AboutFooter'
-import Card, { CardType } from 'components/About/Card'
-import { MAIN_CARDS, MORE_CARDS } from 'components/About/constants'
-import ProtocolBanner from 'components/About/ProtocolBanner'
 import { BaseButton } from 'components/Button'
 import { useSwapWidgetEnabled } from 'featureFlags/flags/swapWidget'
 import Swap from 'pages/Swap'
@@ -19,6 +14,8 @@ import styled, { css } from 'styled-components/macro'
 import { BREAKPOINTS } from 'theme'
 import { Z_INDEX } from 'theme/zIndex'
 
+import soloDarkLogoWithCaption from '../../assets/solo/solo-dark-logo-with-caption.png'
+
 const PageContainer = styled.div<{ isDarkMode: boolean }>`
   position: absolute;
   top: 0;
@@ -31,9 +28,7 @@ const PageContainer = styled.div<{ isDarkMode: boolean }>`
   overflow-x: hidden;
 
   background: ${({ isDarkMode }) =>
-    isDarkMode
-      ? 'linear-gradient(rgba(8, 10, 24, 0) 0%, rgb(8 10 24 / 100%) 45%)'
-      : 'linear-gradient(rgba(255, 255, 255, 0) 0%, rgb(255 255 255 /100%) 45%)'};
+    isDarkMode ? '#141414' : 'linear-gradient(rgba(255, 255, 255, 0) 0%, rgb(255 255 255 /100%) 45%)'};
 `
 
 const Gradient = styled.div<{ isDarkMode: boolean }>`
@@ -46,9 +41,8 @@ const Gradient = styled.div<{ isDarkMode: boolean }>`
   width: 100%;
   min-height: 550px;
   background: ${({ isDarkMode }) =>
-    isDarkMode
-      ? 'linear-gradient(rgba(8, 10, 24, 0) 0%, rgb(8 10 24 / 100%) 45%)'
-      : 'linear-gradient(rgba(255, 255, 255, 0) 0%, rgb(255 255 255 /100%) 45%)'};
+    isDarkMode ? '#141414' : 'linear-gradient(rgba(255, 255, 255, 0) 0%, rgb(255 255 255 /100%) 45%)'};
+  opacity: 0.65
   z-index: ${Z_INDEX.under_dropdown};
   pointer-events: none;
   height: ${({ theme }) => `calc(100vh - ${theme.mobileBottomBarHeight}px)`};
@@ -76,7 +70,6 @@ const Glow = styled.div`
   position: absolute;
   top: 68px;
   bottom: 0;
-  background: radial-gradient(72.04% 72.04% at 50% 3.99%, #ff37eb 0%, rgba(166, 151, 255, 0) 100%);
   filter: blur(72px);
   border-radius: 24px;
   max-width: 480px;
@@ -84,6 +77,12 @@ const Glow = styled.div`
   height: 100%;
 `
 
+const Branding = styled.img`
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  cursor: pointer;
+`
 const ContentContainer = styled.div<{ isDarkMode: boolean }>`
   position: absolute;
   display: flex;
@@ -91,7 +90,6 @@ const ContentContainer = styled.div<{ isDarkMode: boolean }>`
   align-items: center;
   justify-content: flex-end;
   width: 100%;
-  padding: 0 0 40px;
   max-width: min(720px, 90%);
   min-height: 500px;
   z-index: ${Z_INDEX.under_dropdown};
@@ -154,13 +152,13 @@ const LandingButton = styled(BaseButton)`
 `
 
 const ButtonCTA = styled(LandingButton)`
-  background: linear-gradient(93.06deg, #ff00c7 2.66%, #ff9ffb 98.99%);
+  background: #d6d5d6;
   border: none;
-  color: ${({ theme }) => theme.white};
+  color: #141414;
   transition: ${({ theme }) => `all ${theme.transition.duration.medium} ${theme.transition.timing.ease}`};
 
   &:hover {
-    box-shadow: 0px 0px 16px 0px #ff00c7;
+    box-shadow: 0px 0px 16px 0px #9c9b9c;
   }
 `
 
@@ -320,32 +318,21 @@ export default function Landing() {
     <Trace page={InterfacePageName.LANDING_PAGE} shouldLogImpression>
       {showContent && (
         <PageContainer isDarkMode={isDarkMode} data-testid="landing-page">
-          <LandingSwapContainer>
-            <TraceEvent
-              events={[BrowserEvent.onClick]}
-              name={SharedEventName.ELEMENT_CLICKED}
-              element={InterfaceElementName.LANDING_PAGE_SWAP_ELEMENT}
-            >
-              {swapWidgetEnabled ? (
-                <WidgetLandingLink to="/swap">
-                  <Swap />
-                </WidgetLandingLink>
-              ) : (
-                <Link to="/swap">
-                  <LandingSwap />
-                </Link>
-              )}
-            </TraceEvent>
-          </LandingSwapContainer>
+          <LandingSwapContainer></LandingSwapContainer>
           <Gradient isDarkMode={isDarkMode} />
           <GlowContainer>
             <Glow />
           </GlowContainer>
           <ContentContainer isDarkMode={isDarkMode}>
-            <TitleText isDarkMode={isDarkMode}>Trade crypto & NFTs with confidence</TitleText>
-            <SubTextContainer>
-              <SubText>Buy, sell, and explore tokens and NFTs</SubText>
-            </SubTextContainer>
+            {/* <TitleText isDarkMode={isDarkMode}>Trade crypto & NFTs with confidence</TitleText> */}
+            <Branding
+              src={soloDarkLogoWithCaption}
+              onClick={() => {
+                navigate({
+                  pathname: '/swap',
+                })
+              }}
+            />
             <ActionsContainer>
               <TraceEvent
                 events={[BrowserEvent.onClick]}
@@ -357,33 +344,7 @@ export default function Landing() {
                 </ButtonCTA>
               </TraceEvent>
             </ActionsContainer>
-            <LearnMoreContainer
-              onClick={() => {
-                cardsRef?.current?.scrollIntoView({ behavior: 'smooth' })
-              }}
-            >
-              <Trans>Learn more</Trans>
-              <LearnMoreArrow />
-            </LearnMoreContainer>
           </ContentContainer>
-          <AboutContentContainer isDarkMode={isDarkMode}>
-            <CardGrid cols={2} ref={cardsRef}>
-              {MAIN_CARDS.map(({ darkBackgroundImgSrc, lightBackgroundImgSrc, ...card }) => (
-                <Card
-                  {...card}
-                  backgroundImgSrc={isDarkMode ? darkBackgroundImgSrc : lightBackgroundImgSrc}
-                  key={card.title}
-                />
-              ))}
-            </CardGrid>
-            <CardGrid cols={3}>
-              {MORE_CARDS.map(({ darkIcon, lightIcon, ...card }) => (
-                <Card {...card} icon={isDarkMode ? darkIcon : lightIcon} key={card.title} type={CardType.Secondary} />
-              ))}
-            </CardGrid>
-            <ProtocolBanner />
-            <AboutFooter />
-          </AboutContentContainer>
         </PageContainer>
       )}
     </Trace>

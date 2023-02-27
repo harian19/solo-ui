@@ -219,7 +219,7 @@ export default function App() {
             api: STATSIG_PROXY_URL,
           }}
         >
-          <HeaderWrapper transparent={isHeaderTransparent}>
+          <HeaderWrapper transparent={true}>
             <NavBar />
           </HeaderWrapper>
           <BodyWrapper>

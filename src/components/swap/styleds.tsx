@@ -10,7 +10,7 @@ import { AutoColumn } from '../Column'
 
 export const PageWrapper = styled.div`
   padding: 68px 8px 0px;
-  max-width: 480px;
+  max-width: 580px;
   width: 100%;
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
