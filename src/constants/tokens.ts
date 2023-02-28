@@ -77,7 +77,7 @@ export const USDC_POLYGON = new Token(
 )
 const USDC_POLYGON_MUMBAI = new Token(
   SupportedChainId.POLYGON_MUMBAI,
-  '0xe11a86849d99f524cac3e7a0ec1241828e332c62',
+  '0x4fA26462BDf5685571d9a421126755802c166b69',
   6,
   'USDC',
   'USD//C'
@@ -120,6 +120,13 @@ export const DAI_OPTIMISM = new Token(
 export const DAI_POLYGON = new Token(
   SupportedChainId.POLYGON,
   '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+  18,
+  'DAI',
+  'Dai Stablecoin'
+)
+export const DAI_POLYGON_MUMBAI = new Token(
+  SupportedChainId.POLYGON_MUMBAI,
+  '0xea9454e867d012b1d44cdf5f320903eb38351ffa',
   18,
   'DAI',
   'Dai Stablecoin'
@@ -245,7 +252,7 @@ export const SWISE = new Token(
 )
 export const WETH_POLYGON_MUMBAI = new Token(
   SupportedChainId.POLYGON_MUMBAI,
-  '0xa6fa4fb5f76172d178d61b04b0ecd319c5d1c0aa',
+  '0xb91bc1088d1f5c90f2dcc4b35bfeef4188bf32e6',
   18,
   'WETH',
   'Wrapped Ether'

@@ -1,4 +1,5 @@
 import { TokenInfo, TokenList } from '@uniswap/token-lists'
+import { DEFAULT_TOKEN_LIST } from 'constants/default_tokens'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 type TokenMap = Readonly<{ [tokenAddress: string]: { token: WrappedTokenInfo; list?: TokenList } }>
@@ -14,7 +15,7 @@ export function tokensToChainTokenMap(tokens: TokenList | TokenInfo[]): ChainTok
   const cached = mapCache?.get(tokens)
   if (cached) return cached
 
-  const [list, infos] = Array.isArray(tokens) ? [undefined, tokens] : [tokens, tokens.tokens]
+  const [list, infos] = Array.isArray(tokens) ? [undefined, tokens] : [tokens, DEFAULT_TOKEN_LIST.tokens]
   const map = infos.reduce<Mutable<ChainTokenMap>>((map, info) => {
     try {
       const token = new WrappedTokenInfo(info, list)

@@ -13,6 +13,7 @@ import {
   DAI_ARBITRUM_ONE,
   DAI_OPTIMISM,
   DAI_POLYGON,
+  DAI_POLYGON_MUMBAI,
   ETH2X_FLI,
   FEI,
   FRAX,
@@ -170,6 +171,7 @@ export const COMMON_BASES: ChainCurrencyList = {
     nativeOnChain(SupportedChainId.POLYGON_MUMBAI),
     WRAPPED_NATIVE_CURRENCY[SupportedChainId.POLYGON_MUMBAI] as Token,
     WETH_POLYGON_MUMBAI,
+    DAI_POLYGON_MUMBAI,
   ],
 
   [SupportedChainId.CELO]: [

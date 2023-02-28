@@ -16,7 +16,6 @@ import { sendEvent } from 'components/analytics'
 import { NetworkAlert } from 'components/NetworkAlert/NetworkAlert'
 import PriceImpactWarning from 'components/swap/PriceImpactWarning'
 import SwapDetailsDropdown from 'components/swap/SwapDetailsDropdown'
-import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter'
 import TokenSafetyModal from 'components/TokenSafety/TokenSafetyModal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import Widget from 'components/Widget'
@@ -894,12 +893,12 @@ export default function Swap({ className }: { className?: string }) {
           <NetworkAlert />
         </PageWrapper>
         <SwitchLocaleLink />
-        {!swapIsUnsupported ? null : (
+        {/* {!swapIsUnsupported ? null : (
           <UnsupportedCurrencyFooter
             show={swapIsUnsupported}
             currencies={[currencies[Field.INPUT], currencies[Field.OUTPUT]]}
           />
-        )}
+        )} */}
       </>
     </Trace>
   )
