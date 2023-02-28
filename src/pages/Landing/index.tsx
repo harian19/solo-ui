@@ -14,7 +14,7 @@ import styled, { css } from 'styled-components/macro'
 import { BREAKPOINTS } from 'theme'
 import { Z_INDEX } from 'theme/zIndex'
 
-import soloDarkLogoWithCaption from '../../assets/solo/solo-dark-logo-with-caption.png'
+import soloDarkLogoWithCaption from '../../assets/solo/solo-dark-logo-with-liq-caption.jpg'
 
 const PageContainer = styled.div<{ isDarkMode: boolean }>`
   position: absolute;
@@ -78,6 +78,7 @@ const Glow = styled.div`
 `
 
 const Branding = styled.img`
+  padding-top: 100px;
   display: flex;
   justify-content: center;
   height: 100%;
