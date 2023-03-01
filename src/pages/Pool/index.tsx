@@ -172,7 +172,7 @@ function WrongNetworkCard() {
           <AutoColumn gap="lg" style={{ width: '100%' }}>
             <TitleRow padding="0">
               <ThemedText.LargeHeader>
-                <Trans>Pools</Trans>
+                <Trans>Deposits</Trans>
               </ThemedText.LargeHeader>
             </TitleRow>
 
@@ -273,7 +273,7 @@ export default function Pool() {
           <AutoColumn gap="lg" style={{ width: '100%' }}>
             <TitleRow padding="0">
               <ThemedText.LargeHeader>
-                <Trans>Pools</Trans>
+                <Trans>Deposits</Trans>
               </ThemedText.LargeHeader>
               <ButtonRow>
                 {showV2Features && (

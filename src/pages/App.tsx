@@ -9,7 +9,6 @@ import {
 import { CustomUserProperties, getBrowser, InterfacePageName, SharedEventName } from '@uniswap/analytics-events'
 import { useWeb3React } from '@web3-react/core'
 import Loader from 'components/Loader'
-import { MenuDropdown } from 'components/NavBar/MenuDropdown'
 import TopLevelModals from 'components/TopLevelModals'
 import { useFeatureFlagsIsLoaded } from 'featureFlags'
 import ApeModeQueryParamReader from 'hooks/useApeModeQueryParamReader'
@@ -89,7 +88,7 @@ const MobileBottomBar = styled.div`
   left: 0;
   width: 100vw;
   justify-content: space-between;
-  padding: 4px 8px;
+  padding: 0px 8px;
   height: ${({ theme }) => theme.mobileBottomBarHeight}px;
   background: ${({ theme }) => theme.backgroundSurface};
   border-top: 1px solid ${({ theme }) => theme.backgroundOutline};
@@ -328,9 +327,7 @@ export default function App() {
           </BodyWrapper>
           <MobileBottomBar>
             <PageTabs />
-            <Box marginY="4">
-              <MenuDropdown />
-            </Box>
+            <Box marginY="4">{/* <MenuDropdown /> */}</Box>
           </MobileBottomBar>
         </StatsigProvider>
       </Trace>

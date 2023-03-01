@@ -14,8 +14,6 @@ import styled from 'styled-components/macro'
 import soloDarkLogo from '../../assets/solo/solo-dark-logo.png'
 import { Bag } from './Bag'
 import { ChainSelector } from './ChainSelector'
-import { MenuDropdown } from './MenuDropdown'
-import { SearchBar } from './SearchBar'
 import * as styles from './style.css'
 
 const Logo = styled.img`
@@ -28,6 +26,15 @@ const Nav = styled.nav`
   width: 100%;
   height: ${({ theme }) => theme.navHeight}px;
   z-index: 2;
+`
+
+const VerticalDivider = styled.div`
+  margin: 0px;
+  width: 1px;
+  background-color: ${({ theme }) => theme.accentAction};
+  @media screen and (min-width: ${({ theme }) => theme.breakpoint.md}px) {
+    height: 25px;
+  }
 `
 
 interface MenuItemProps {
@@ -58,7 +65,7 @@ export const PageTabs = () => {
   const chainName = chainIdToBackendName(connectedChainId)
 
   const isPoolActive =
-    pathname.startsWith('deposit') ||
+    pathname.startsWith('/deposit') ||
     pathname.startsWith('/add') ||
     pathname.startsWith('/remove') ||
     pathname.startsWith('/increase')
@@ -68,7 +75,7 @@ export const PageTabs = () => {
   return (
     <>
       <MenuItem href="/swap" isActive={pathname.startsWith('/swap')}>
-        <Trans>Swap</Trans>
+        <Trans>SWAP</Trans>
       </MenuItem>
       {/* <MenuItem href={`/tokens/${chainName.toLowerCase()}`} isActive={pathname.startsWith('/tokens')}>
         <Trans>Tokens</Trans>
@@ -76,8 +83,9 @@ export const PageTabs = () => {
       {/* <MenuItem dataTestId="nft-nav" href="/nfts" isActive={isNftPage}>
         <Trans>NFTs</Trans>
       </MenuItem> */}
+      <VerticalDivider />
       <MenuItem href="/deposit" id="pool-nav-link" isActive={isPoolActive}>
-        <Trans>Deposit</Trans>
+        <Trans>DEPOSIT</Trans>
       </MenuItem>
     </>
   )
@@ -110,21 +118,19 @@ const Navbar = () => {
                 <ChainSelector leftAlign={true} />
               </Box>
             )}
+          </Box>
+
+          <Box className={styles.searchContainer}>
             <Row gap={{ xl: '0', xxl: '8' }} display={{ sm: 'none', lg: 'flex' }}>
               <PageTabs />
             </Row>
           </Box>
-          <Box className={styles.searchContainer}>
-            <SearchBar />
-          </Box>
           <Box className={styles.rightSideContainer}>
             <Row gap="12">
               <Box position="relative" display={{ sm: 'flex', xl: 'none' }}>
-                <SearchBar />
+                {/* <SearchBar /> */}
               </Box>
-              <Box display={{ sm: 'none', lg: 'flex' }}>
-                <MenuDropdown />
-              </Box>
+              <Box display={{ sm: 'none', lg: 'flex' }}>{/* <MenuDropdown /> */}</Box>
               {isNftPage && sellPageState !== ProfilePageStateType.LISTING && <Bag />}
               {!isNftPage && (
                 <Box display={{ sm: 'none', lg: 'flex' }}>

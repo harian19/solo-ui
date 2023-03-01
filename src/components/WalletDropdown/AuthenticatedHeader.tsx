@@ -17,7 +17,7 @@ import { useProfilePageState, useSellAsset, useWalletCollections } from 'nft/hoo
 import { useIsNftClaimAvailable } from 'nft/hooks/useIsNftClaimAvailable'
 import { ProfilePageStateType } from 'nft/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Copy, CreditCard, ExternalLink as ExternalLinkIcon, Info, Power } from 'react-feather'
+import { Copy, ExternalLink as ExternalLinkIcon, Info, Power } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { useCurrencyBalanceString } from 'state/connection/hooks'
 import { useAppDispatch } from 'state/hooks'
@@ -305,15 +305,15 @@ const AuthenticatedHeader = () => {
           </ThemedText.HeadlineLarge>
           {amountUSD !== undefined && <USDText>{formatUSDPrice(amountUSD)} USD</USDText>}
         </BalanceWrapper>
-        <ProfileButton
+        {/* <ProfileButton
           data-testid="nft-view-self-nfts"
           onClick={navigateToProfile}
           size={ButtonSize.medium}
           emphasis={ButtonEmphasis.medium}
         >
           <Trans>View and sell NFTs</Trans>
-        </ProfileButton>
-        <BuyCryptoButton
+        </ProfileButton> */}
+        {/* <BuyCryptoButton
           $animateBorder={animateBuyCryptoButtonBorder}
           size={ButtonSize.medium}
           emphasis={ButtonEmphasis.medium}
@@ -332,7 +332,7 @@ const AuthenticatedHeader = () => {
               <Trans>Buy crypto</Trans>
             </>
           )}
-        </BuyCryptoButton>
+        </BuyCryptoButton> */}
         {Boolean(!fiatOnrampAvailable && fiatOnrampAvailabilityChecked) && (
           <FiatOnrampNotAvailableText marginTop="8px">
             <Trans>Not available in your region</Trans>
