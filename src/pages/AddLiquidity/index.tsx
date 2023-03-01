@@ -398,7 +398,7 @@ export default function AddLiquidity() {
     if (txHash) {
       onFieldAInput('')
       // dont jump to pool page if creating
-      navigate('/pool')
+      navigate('/deposit')
     }
     setTxHash('')
   }, [navigate, onFieldAInput, txHash])

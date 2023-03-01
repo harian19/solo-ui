@@ -116,7 +116,7 @@ function getCurrentPageFromLocation(locationPathname: string): InterfacePageName
       return InterfacePageName.SWAP_PAGE
     case locationPathname.startsWith('/vote'):
       return InterfacePageName.VOTE_PAGE
-    case locationPathname.startsWith('/pool'):
+    case locationPathname.startsWith('/deposit'):
       return InterfacePageName.POOL_PAGE
     case locationPathname.startsWith('/tokens'):
       return InterfacePageName.TOKENS_PAGE
@@ -250,8 +250,8 @@ export default function App() {
 
                   <Route path="pool/v2/find" element={<PoolFinder />} />
                   <Route path="pool/v2" element={<PoolV2 />} />
-                  <Route path="pool" element={<Pool />} />
-                  <Route path="pool/:tokenId" element={<PositionPage />} />
+                  <Route path="deposit" element={<Pool />} />
+                  <Route path="deposit/:tokenId" element={<PositionPage />} />
 
                   <Route path="add/v2" element={<RedirectDuplicateTokenIdsV2 />}>
                     <Route path=":currencyIdA" />
