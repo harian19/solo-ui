@@ -2,7 +2,6 @@ import { rootCssString } from 'nft/css/cssStringFromTheme'
 import React, { useMemo } from 'react'
 import { createGlobalStyle, css, ThemeProvider as StyledComponentsThemeProvider } from 'styled-components/macro'
 
-import { useIsDarkMode } from '../state/user/hooks'
 import { darkTheme, lightTheme } from './colors'
 import { darkDeprecatedTheme, lightDeprecatedTheme } from './deprecatedColors'
 
@@ -103,7 +102,7 @@ export function getTheme(darkMode: boolean) {
 }
 
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const darkMode = useIsDarkMode()
+  const darkMode = true
   const themeObject = useMemo(() => getTheme(darkMode), [darkMode])
   return <StyledComponentsThemeProvider theme={themeObject}>{children}</StyledComponentsThemeProvider>
 }
