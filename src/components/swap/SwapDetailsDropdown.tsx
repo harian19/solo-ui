@@ -8,6 +8,7 @@ import Card, { OutlineCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import { LoadingOpacityContainer } from 'components/Loader/styled'
 import Row, { RowBetween, RowFixed } from 'components/Row'
+import Toggle from 'components/Toggle'
 import { MouseoverTooltipContent } from 'components/Tooltip'
 import { SUPPORTED_GAS_ESTIMATE_CHAIN_IDS } from 'constants/chains'
 import { useState } from 'react'
@@ -16,6 +17,7 @@ import { InterfaceTrade } from 'state/routing/types'
 import styled, { keyframes, useTheme } from 'styled-components/macro'
 import { HideSmall, ThemedText } from 'theme'
 
+import QuestionHelper from '../QuestionHelper'
 import { AdvancedSwapDetails } from './AdvancedSwapDetails'
 import GasEstimateBadge from './GasEstimateBadge'
 import { ResponsiveTooltipContainer } from './styleds'
@@ -117,10 +119,31 @@ export default function SwapDetailsDropdown({ trade, syncing, loading, allowedSl
   const theme = useTheme()
   const { chainId } = useWeb3React()
   const [showDetails, setShowDetails] = useState(false)
+  const [showSoloDetails, setShowSoloDetails] = useState(false)
 
   return (
     <Wrapper style={{ marginTop: '0' }}>
       <AutoColumn gap="sm" style={{ width: '100%', marginBottom: '-8px' }}>
+        <RowBetween>
+          <RowFixed>
+            <ThemedText.DeprecatedBlack fontWeight={400} fontSize={14} color={theme.textSecondary}>
+              <Trans>{showSoloDetails ? 'Show UniV3 Trades' : 'Show Solo Trades'}</Trans>
+            </ThemedText.DeprecatedBlack>
+            <QuestionHelper text={<Trans>Switching between Solo and Uniswap trades</Trans>} />
+          </RowFixed>
+          <Toggle
+            isActive={showSoloDetails}
+            toggle={
+              showSoloDetails
+                ? () => {
+                    setShowSoloDetails(false)
+                  }
+                : () => {
+                    setShowSoloDetails(true)
+                  }
+            }
+          />
+        </RowBetween>
         <TraceEvent
           events={[BrowserEvent.onClick]}
           name={SwapEventName.SWAP_DETAILS_EXPANDED}
