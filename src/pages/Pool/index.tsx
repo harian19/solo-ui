@@ -20,7 +20,6 @@ import { HideSmall, ThemedText } from 'theme'
 import { PositionDetails } from 'types/position'
 
 import { V2_FACTORY_ADDRESSES } from '../../constants/addresses'
-import CTACards from './CTACards'
 import { LoadingRows } from './styleds'
 
 const PageWrapper = styled(AutoColumn)`
@@ -291,7 +290,7 @@ export default function Pool() {
                   />
                 )}
                 <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
-                  + <Trans>New Position</Trans>
+                  + <Trans>New Deposit</Trans>
                 </ResponsiveButtonPrimary>
               </ButtonRow>
             </TitleRow>
@@ -310,7 +309,7 @@ export default function Pool() {
                   <ThemedText.DeprecatedBody color={theme.textTertiary} textAlign="center">
                     <InboxIcon strokeWidth={1} style={{ marginTop: '2em' }} />
                     <div>
-                      <Trans>Your active V3 liquidity positions will appear here.</Trans>
+                      <Trans>Your active deposits will appear here.</Trans>
                     </div>
                   </ThemedText.DeprecatedBody>
                   {!showConnectAWallet && closedPositions.length > 0 && (
@@ -339,9 +338,7 @@ export default function Pool() {
                 </ErrorContainer>
               )}
             </MainContentWrapper>
-            <HideSmall>
-              <CTACards />
-            </HideSmall>
+            <HideSmall>{/* <CTACards /> */}</HideSmall>
           </AutoColumn>
         </AutoColumn>
       </PageWrapper>

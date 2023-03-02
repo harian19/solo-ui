@@ -1,8 +1,9 @@
 import { useWeb3React } from '@web3-react/core'
-import SoloDeposit from 'pages/SoloDeposit'
 import { Navigate, useParams } from 'react-router-dom'
 
 import { WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
+import SoloDeposit from './index'
+import AddLiquidity from './index'
 
 export function RedirectDuplicateTokenIds() {
   const { currencyIdA, currencyIdB } = useParams<{ currencyIdA: string; currencyIdB: string; feeAmount?: string }>()

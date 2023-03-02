@@ -32,7 +32,6 @@ import Polling from '../components/Polling'
 import Popups from '../components/Popups'
 import { useIsExpertMode } from '../state/user/hooks'
 import DarkModeQueryParamReader from '../theme/components/DarkModeQueryParamReader'
-import AddLiquidity from './AddLiquidity'
 import { RedirectDuplicateTokenIds } from './AddLiquidity/redirects'
 import { RedirectDuplicateTokenIdsV2 } from './AddLiquidityV2/redirects'
 import Landing from './Landing'
@@ -45,6 +44,7 @@ import PoolV2 from './Pool/v2'
 import PoolFinder from './PoolFinder'
 import RemoveLiquidity from './RemoveLiquidity'
 import RemoveLiquidityV3 from './RemoveLiquidity/V3'
+import SoloDeposit from './SoloDeposit'
 import Swap from './Swap'
 import { RedirectPathToSwapOnly } from './Swap/redirects'
 import Tokens from './Tokens'
@@ -263,7 +263,7 @@ export default function App() {
                     <Route path=":currencyIdA/:currencyIdB/:feeAmount" />
                   </Route>
 
-                  <Route path="increase" element={<AddLiquidity />}>
+                  <Route path="increase" element={<SoloDeposit />}>
                     <Route path=":currencyIdA" />
                     <Route path=":currencyIdA/:currencyIdB" />
                     <Route path=":currencyIdA/:currencyIdB/:feeAmount" />

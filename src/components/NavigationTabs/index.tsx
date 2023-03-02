@@ -3,16 +3,11 @@ import { Percent } from '@uniswap/sdk-core'
 import { ReactNode } from 'react'
 import { ArrowLeft } from 'react-feather'
 import { Link as HistoryLink, useLocation } from 'react-router-dom'
-import { Box } from 'rebass'
 import { useAppDispatch } from 'state/hooks'
-import { resetMintState } from 'state/mint/actions'
-import { resetMintState as resetMintV3State } from 'state/mint/v3/actions'
 import styled, { useTheme } from 'styled-components/macro'
-import { ThemedText } from 'theme'
 import { flexRowNoWrap } from 'theme/styles'
 
 import Row, { RowBetween } from '../Row'
-import SettingsTab from '../Settings'
 
 const Tabs = styled.div`
   ${flexRowNoWrap};
@@ -79,38 +74,27 @@ export function AddRemoveTabs({
     : '/deposit' + (positionID ? `/${positionID.toString()}` : '')
 
   return (
-    <Tabs>
-      <RowBetween style={{ padding: '1rem 1rem 0 1rem' }}>
-        <StyledHistoryLink
-          to={poolLink}
-          onClick={() => {
-            if (adding) {
-              // not 100% sure both of these are needed
-              dispatch(resetMintState())
-              dispatch(resetMintV3State())
-            }
-          }}
-          flex={children ? '1' : undefined}
-        >
-          <StyledArrowLeft stroke={theme.textSecondary} />
-        </StyledHistoryLink>
-        <ThemedText.DeprecatedMediumHeader
-          fontWeight={500}
-          fontSize={20}
-          style={{ flex: '1', margin: 'auto', textAlign: children ? 'start' : 'center' }}
-        >
-          {creating ? (
-            <Trans>Create a pair</Trans>
-          ) : adding ? (
-            <Trans>Add Liquidity</Trans>
-          ) : (
-            <Trans>Remove Liquidity</Trans>
-          )}
-        </ThemedText.DeprecatedMediumHeader>
-        <Box style={{ marginRight: '.5rem' }}>{children}</Box>
-        <SettingsTab placeholderSlippage={defaultSlippage} />
-      </RowBetween>
-    </Tabs>
+    <>
+      <Tabs>
+        {/* <RowBetween style={{ padding: '1rem 1rem 0 1rem' }}>
+          <ThemedText.DeprecatedMediumHeader
+            fontWeight={500}
+            fontSize={20}
+            style={{ flex: '1', margin: 'auto', textAlign: children ? 'start' : 'center' }}
+          >
+            {creating ? (
+              <Trans>Create a pair</Trans>
+            ) : adding ? (
+              <Trans>Deposit Liquidity</Trans>
+            ) : (
+              <Trans>Remove Liquidity</Trans>
+            )}
+          </ThemedText.DeprecatedMediumHeader>
+          <Box style={{ marginRight: '.5rem' }}>{children}</Box>
+          <SettingsTab placeholderSlippage={defaultSlippage} />
+        </RowBetween> */}
+      </Tabs>
+    </>
   )
 }
 
