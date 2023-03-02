@@ -30,7 +30,7 @@ import {
   USDC_MAINNET,
   USDC_OPTIMISM,
   USDC_POLYGON,
-  USDC_POLYGON_MUMBAI,
+  USDC_POLYGON_MUMBAI_NEW,
   USDT,
   USDT_ARBITRUM_ONE,
   USDT_OPTIMISM,
@@ -173,9 +173,8 @@ export const COMMON_BASES: ChainCurrencyList = {
     WRAPPED_NATIVE_CURRENCY[SupportedChainId.POLYGON_MUMBAI] as Token,
     WETH_POLYGON_MUMBAI,
     DAI_POLYGON_MUMBAI,
-    USDC_POLYGON_MUMBAI,
+    USDC_POLYGON_MUMBAI_NEW,
   ],
-
   [SupportedChainId.CELO]: [
     nativeOnChain(SupportedChainId.CELO),
     CEUR_CELO,

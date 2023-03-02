@@ -77,7 +77,7 @@ import {
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
-export default function AddLiquidity() {
+function AddLiquidity() {
   const navigate = useNavigate()
   const {
     currencyIdA,
