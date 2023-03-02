@@ -690,13 +690,7 @@ export default function Swap({ className }: { className?: string }) {
                 </div>
                 {showPriceImpactWarning && <PriceImpactWarning priceImpact={largerPriceImpact} />}
                 <div>
-                  {swapIsUnsupported ? (
-                    <ButtonPrimary disabled={true}>
-                      <ThemedText.DeprecatedMain mb="4px">
-                        <Trans>Unsupported Asset</Trans>
-                      </ThemedText.DeprecatedMain>
-                    </ButtonPrimary>
-                  ) : !account ? (
+                  {!account ? (
                     <TraceEvent
                       events={[BrowserEvent.onClick]}
                       name={InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED}

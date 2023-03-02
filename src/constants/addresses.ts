@@ -23,7 +23,7 @@ const CELO_TICK_LENS_ADDRESSES = '0x5f115D9113F88e0a0Db1b5033D90D4a9690AcD3D'
 
 /* V3 Contract Addresses */
 export const V3_CORE_FACTORY_ADDRESSES: AddressMap = {
-  ...constructSameAddressMap('0xaec912fF75A408b5c332D727caE13a7AEddd6187', [
+  ...constructSameAddressMap('0x1Efb4242106d1532143245AfD050d9e8C70473f5', [
     SupportedChainId.OPTIMISM,
     SupportedChainId.OPTIMISM_GOERLI,
     SupportedChainId.ARBITRUM_ONE,
@@ -36,7 +36,7 @@ export const V3_CORE_FACTORY_ADDRESSES: AddressMap = {
 }
 
 export const V3_MIGRATOR_ADDRESSES: AddressMap = {
-  ...constructSameAddressMap('0x15dbc79DEfBB2F5BcCACd5080924608FdB2Cb0a0', [
+  ...constructSameAddressMap('0xf007Ee5bd7D83e749b7b0b168A015497606ce9e0', [
     SupportedChainId.ARBITRUM_ONE,
     SupportedChainId.ARBITRUM_RINKEBY,
     SupportedChainId.POLYGON_MUMBAI,
@@ -47,7 +47,7 @@ export const V3_MIGRATOR_ADDRESSES: AddressMap = {
 }
 
 export const MULTICALL_ADDRESS: AddressMap = {
-  ...constructSameAddressMap('0xEF563f8ff66947d8be56d73cc440679F3A62beB2', [
+  ...constructSameAddressMap('0x8415eF575DC84589af0C8B3e96d6b76D84ee50CC', [
     SupportedChainId.OPTIMISM_GOERLI,
     SupportedChainId.OPTIMISM,
     SupportedChainId.POLYGON_MUMBAI,
@@ -60,7 +60,7 @@ export const MULTICALL_ADDRESS: AddressMap = {
 }
 
 export const SWAP_ROUTER_ADDRESSES: AddressMap = {
-  ...constructSameAddressMap('0xFb4c46511356cf586353bCEE3C7155524C260Cb1', [
+  ...constructSameAddressMap('0x9dc76789FFEEF08d877F85E20F58a45CCb9bAdf9', [
     SupportedChainId.OPTIMISM,
     SupportedChainId.OPTIMISM_GOERLI,
     SupportedChainId.ARBITRUM_ONE,
@@ -102,7 +102,7 @@ export const ARGENT_WALLET_DETECTOR_ADDRESS: AddressMap = {
 }
 
 export const QUOTER_ADDRESSES: AddressMap = {
-  ...constructSameAddressMap('0xB52CD88296131e5aCdA080bbe159376305E73C4c', [
+  ...constructSameAddressMap('0x8A83eE8Bf40F71FFC3B568C14927661BfCfc0911', [
     SupportedChainId.OPTIMISM,
     SupportedChainId.OPTIMISM_GOERLI,
     SupportedChainId.ARBITRUM_ONE,
@@ -115,7 +115,7 @@ export const QUOTER_ADDRESSES: AddressMap = {
 }
 
 export const NONFUNGIBLE_POSITION_MANAGER_ADDRESSES: AddressMap = {
-  ...constructSameAddressMap('0xDEC8ddC31cb59C9d5442Fa95c9427Edb3bbe4e29', [
+  ...constructSameAddressMap('0x1615C258d0a96033faB8f60AD8e72B21dFBF8644', [
     SupportedChainId.OPTIMISM,
     SupportedChainId.OPTIMISM_GOERLI,
     SupportedChainId.ARBITRUM_ONE,

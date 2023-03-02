@@ -8070,10 +8070,10 @@ export const DEFAULT_TOKEN_LIST: TokenList = {
     },
     {
       name: 'USDCoin',
-      address: '0x4fA26462BDf5685571d9a421126755802c166b69',
+      address: '0x619801Be9f3D8af35dbA5b8d2702bA2fa1fa10B2',
       symbol: 'USDC',
       decimals: 6,
-      chainId: 1,
+      chainId: 80001,
       logoURI:
         'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
     },
