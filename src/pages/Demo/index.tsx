@@ -239,6 +239,7 @@ const AboutContentContainer = styled.div<{ isDarkMode: boolean }>`
   background: ${({ isDarkMode }) =>
     isDarkMode ? '#141414' : 'linear-gradient(179.82deg, rgba(255, 255, 255, 0) 0.16%, #eaeaea 99.85%)'};
   @media screen and (min-width: ${BREAKPOINTS.md}px) {
+    width: 60%;
     padding: 0 96px 5rem;
   }
 `
@@ -345,16 +346,26 @@ export default function Demo() {
       to: 'https://www.alchemy.com/overviews/mumbai-testnet#how-to-get-started-using-the-mumbai-testnet',
       external: true,
       title: '1. Connect Wallet',
-      description: 'Connect your wallet to our Dapp on Mumbai testnet ',
+      description: 'Connect your wallet to our Dapp on Mumbai testnet.',
       lightIcon: <Terminal color={lightTheme.textTertiary} size={48} />,
       darkIcon: <StyledCardLogo src={darkTerminalImgSrc} alt="Developers" />,
       cta: 'Instructions',
       elementName: InterfaceElementName.ABOUT_PAGE_DEV_DOCS_CARD,
     },
     {
+      to: 'https://www.mumbaifaucet.com',
+      external: true,
+      title: '2. Grab Testnet MATIC',
+      description: 'Grab MATIC to transcat on the Polygon Mumbai testnet.',
+      lightIcon: <Terminal color={lightTheme.textTertiary} size={48} />,
+      darkIcon: <StyledCardLogo src={darkDollarImgSrc} alt="Developers" />,
+      cta: 'Grab MATIC',
+      elementName: InterfaceElementName.ABOUT_PAGE_DEV_DOCS_CARD,
+    },
+    {
       onClick: handleFaucetCall,
       external: true,
-      title: '2. Get tokens',
+      title: '3. Get tokens',
       description: 'Use our faucet to load your wallet with tokens.',
       lightIcon: <DollarSign color={lightTheme.textTertiary} size={48} />,
       darkIcon: <StyledCardLogo src={darkDollarImgSrc} alt="Earn" />,
@@ -363,7 +374,7 @@ export default function Demo() {
     },
     {
       to: '/earn',
-      title: '3. Earn',
+      title: '4. Earn',
       description: 'Provide liquidity on Solo and earn.',
       lightIcon: <StyledCardLogo src={lightArrowImgSrc} alt="Analytics" />,
       darkIcon: <StyledCardLogo src={darkDollarImgSrc} alt="Analytics" />,
@@ -372,7 +383,7 @@ export default function Demo() {
     },
     {
       to: '/swap',
-      title: '4. Swap',
+      title: '5. Swap',
       description: 'Trade on Solo and swap tokens.',
       lightIcon: <StyledCardLogo src={lightArrowImgSrc} alt="Analytics" />,
       darkIcon: <StyledCardLogo src={darkArrowImgSrc} alt="Analytics" />,
@@ -400,7 +411,7 @@ export default function Demo() {
                 ETHDenver Instructions
               </ThemedText.DeprecatedLargeHeader>
             </TitleRow>
-            <CardGrid cols={2}>
+            <CardGrid cols={1}>
               {MORE_CARDS.map(({ darkIcon, lightIcon, onClick, ...card }) => (
                 <Card
                   {...card}
