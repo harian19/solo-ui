@@ -400,6 +400,7 @@ export default function Swap({ className }: { className?: string }) {
           path: [[currencies.INPUT, currencies.OUTPUT, FeeAmount.LOW]],
           protocol: SoloProtocol.CONC,
         })
+        newRoutes.sort((r1, r2) => r2.percent - r1.percent)
         setRoutes(newRoutes)
       }
     } catch (e) {
