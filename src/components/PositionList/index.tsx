@@ -1,6 +1,8 @@
 import { Trans } from '@lingui/macro'
 import { ButtonSecondary } from 'components/Button'
 import { DarkCard } from 'components/Card'
+import DoubleCurrencyLogo from 'components/DoubleLogo'
+import { useCurrency } from 'hooks/Tokens'
 import React from 'react'
 import styled from 'styled-components/macro'
 import { MEDIA_WIDTHS } from 'theme'
@@ -81,11 +83,17 @@ export default function PositionList({
   userHideClosedPositions,
   handleWithdraw,
 }: PositionListProps) {
+  const currency0 = useCurrency('0xCC57bcE47D2d624668fe1A388758fD5D91065d33')
+  const currency1 = useCurrency('0xB704143D415d6a3a9e851DA5e76B64a5D99d718b')
+
   return (
     <>
       <DesktopHeader>
-        <div>
-          <Trans>Your positions</Trans>
+        <div style={{ display: 'flex', fontSize: '16px' }}>
+          {currency0 && currency1 && (
+            <DoubleCurrencyLogo currency0={currency0} currency1={currency1} margin={true} size={25} />
+          )}
+          <span style={{ margin: '4px' }}>DAI-WETH position</span>
         </div>
 
         <ToggleLabel
@@ -96,7 +104,10 @@ export default function PositionList({
         ></ToggleLabel>
       </DesktopHeader>
       <MobileHeader>
-        <Trans>Your positions</Trans>
+        {currency0 && currency1 && (
+          <DoubleCurrencyLogo currency0={currency0} currency1={currency1} margin={true} size={20} />
+        )}
+        <Trans>DAI-WETH position</Trans>
         <ToggleWrap>
           <ToggleLabel
             onClick={() => {
