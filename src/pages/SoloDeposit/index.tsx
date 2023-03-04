@@ -62,7 +62,6 @@ import { DynamicSection, PageWrapper, ScrollablePage, Wrapper } from './styled'
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
 export default function SoloDeposit() {
-  const navigate = useNavigate()
   const {
     currencyIdA,
     currencyIdB,
@@ -142,6 +141,8 @@ export default function SoloDeposit() {
 
   const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput, onStartPriceInput } =
     useV3MintActionHandlers(noLiquidity)
+
+  const navigate = useNavigate()
 
   const isValid = !errorMessage && !invalidRange
 

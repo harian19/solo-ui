@@ -7,6 +7,7 @@ import { SupportedL2ChainId } from 'constants/chains'
 import useCurrencyLogoURIs from 'lib/hooks/useCurrencyLogoURIs'
 import { ReactNode, useCallback, useState } from 'react'
 import { AlertCircle, AlertTriangle, ArrowUpCircle, CheckCircle } from 'react-feather'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import { useIsTransactionConfirmed, useTransaction } from 'state/transactions/hooks'
 import styled, { useTheme } from 'styled-components/macro'
@@ -102,6 +103,7 @@ export function TransactionSubmittedContent({
   inline?: boolean // not in modal
 }) {
   const theme = useTheme()
+  const navigate = useNavigate()
 
   const { connector } = useWeb3React()
 
@@ -152,6 +154,13 @@ export function TransactionSubmittedContent({
                 </RowFixed>
               )}
             </ButtonLight>
+          )}
+          {currencyToAdd === undefined ? (
+            <ButtonLight mt="12px" padding="6px 12px" width="fit-content" onClick={() => navigate('/deposit')}>
+              View Positions
+            </ButtonLight>
+          ) : (
+            <></>
           )}
           <ButtonPrimary onClick={onDismiss} style={{ margin: '20px 0 0 0' }}>
             <Text fontWeight={600} fontSize={20} color={theme.accentTextLightPrimary}>
