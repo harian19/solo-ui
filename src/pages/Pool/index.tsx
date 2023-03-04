@@ -216,7 +216,7 @@ export default function Pool() {
     provider
   )
 
-  const [deposits, setDeposits] = useState<{ logoURI: string; value: string; symbol: string }[]>([])
+  const [deposits, setDeposits] = useState<{ logoURI: string; value: string; symbol: string; name: string }[]>([])
 
   const fetchDeposits = useCallback(async () => {
     const userAddress = await signer?.getAddress()
@@ -228,12 +228,14 @@ export default function Pool() {
           'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
         value: ethers.utils.formatEther(depositsCall[0]),
         symbol: 'DAI',
+        name: 'DAI',
       },
       {
         logoURI:
           'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
         value: ethers.utils.formatEther(depositsCall[1]),
         symbol: 'WETH',
+        name: 'Wrapped Ether',
       },
     ])
   }, [signer, soloPoolContract.callStatic, soloPoolContractStatic])

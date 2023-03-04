@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { ButtonSecondary } from 'components/Button'
+import { ButtonOutlined, ButtonSecondary } from 'components/Button'
 import { DarkCard } from 'components/Card'
 import React from 'react'
 import styled from 'styled-components/macro'
@@ -69,7 +69,7 @@ const ToggleLabel = styled.button`
 `
 
 type PositionListProps = React.PropsWithChildren<{
-  deposits: { logoURI: string; value: string; symbol: string }[]
+  deposits: { logoURI: string; value: string; symbol: string; name: string }[]
   setUserHideClosedPositions: any
   userHideClosedPositions: boolean
   handleWithdraw: () => void
@@ -86,7 +86,6 @@ export default function PositionList({
       <DesktopHeader>
         <div>
           <Trans>Your positions</Trans>
-          {deposits && ' (' + deposits.length + ')'}
         </div>
 
         <ToggleLabel
@@ -106,45 +105,54 @@ export default function PositionList({
           ></ToggleLabel>
         </ToggleWrap>
       </MobileHeader>
-      {deposits.map((d) => {
-        return (
-          <DarkCard style={{ padding: '0.6rem' }} key={d.symbol}>
-            <div
-              style={{
-                textAlign: 'center',
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-around',
-                fontSize: '20px',
-                backgroundColor: '#141414',
-                borderRadius: '12px',
-                height: '90px',
-              }}
-            >
-              <TokenLogo size="48px" alt="token logo" src={d.logoURI} style={{ float: 'left' }} />
-              {parseFloat(d.value).toFixed(3)} {d.symbol}
-              {/* <ButtonPrimary
-                as={Link}
-                style={{ borderRadius: '12px', padding: '4px', display: 'inline-block', margin: '10px' }}
-                width="150px"
-                to="/add/0xB704143D415d6a3a9e851DA5e76B64a5D99d718b"
-                disabled={d.symbol == 'WETH'}
+      <DarkCard style={{ padding: '0.6rem' }}>
+        <div
+          style={{
+            backgroundColor: '#141414',
+            borderRadius: '12px',
+          }}
+        >
+          {deposits.map((d) => {
+            return (
+              <div
+                key={d.symbol}
+                style={{
+                  textAlign: 'center',
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '40px',
+                  fontSize: '20px',
+                  height: '90px',
+                }}
               >
-                Deposit
-              </ButtonPrimary> */}
-              <ButtonSecondary
-                onClick={handleWithdraw}
-                padding="2"
-                style={{ display: 'inline-block', margin: '10px' }}
-                width="150px"
-              >
-                Withdraw
-              </ButtonSecondary>
-            </div>
-          </DarkCard>
-        )
-      })}
+                <TokenLogo size="48px" alt="token logo" src={d.logoURI} style={{ float: 'left' }} />
+                <span>{d.name}</span>
+                {parseFloat(d.value).toFixed(2)} {d.symbol}
+              </div>
+            )
+          })}
+          <ButtonOutlined
+            onClick={() => {
+              return
+            }}
+            padding="2"
+            style={{ float: 'right', display: 'inline-block', margin: '10px', borderRadius: '12px' }}
+            width="150px"
+          >
+            Track Rewards
+          </ButtonOutlined>
+          <ButtonSecondary
+            onClick={handleWithdraw}
+            padding="2"
+            style={{ float: 'right', display: 'inline-block', margin: '10px' }}
+            width="150px"
+          >
+            Withdraw
+          </ButtonSecondary>
+        </div>
+      </DarkCard>
     </>
   )
 }

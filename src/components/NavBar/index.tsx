@@ -65,10 +65,7 @@ export const PageTabs = () => {
   const chainName = chainIdToBackendName(connectedChainId)
 
   const isPoolActive =
-    pathname.startsWith('/deposit') ||
-    pathname.startsWith('/add') ||
-    pathname.startsWith('/remove') ||
-    pathname.startsWith('/increase')
+    pathname.startsWith('/deposit') || pathname.startsWith('/remove') || pathname.startsWith('/increase')
 
   const isNftPage = useIsNftPage()
 
@@ -84,7 +81,7 @@ export const PageTabs = () => {
         <Trans>NFTs</Trans>
       </MenuItem> */}
       <VerticalDivider />
-      <MenuItem href="/earn" id="earn-nav-link" isActive={pathname.startsWith('/earn')}>
+      <MenuItem href="/earn" id="earn-nav-link" isActive={pathname.startsWith('/earn') || pathname.startsWith('/add')}>
         <Trans>EARN</Trans>
       </MenuItem>
       <VerticalDivider />
