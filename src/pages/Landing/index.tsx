@@ -308,11 +308,11 @@ export default function Landing() {
 
   // This can be simplified significantly once the flag is removed! For now being explicit is clearer.
   useEffect(() => {
-    if (queryParams.intro || !selectedWallet) {
-      setShowContent(true)
-    } else {
-      navigate('/swap')
-    }
+    // if (queryParams.intro || !selectedWallet) {
+    setShowContent(true)
+    // } else {
+    // navigate('/swap')
+    // }
   }, [navigate, selectedWallet, queryParams.intro])
 
   return (

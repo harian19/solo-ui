@@ -1,9 +1,9 @@
 import { Trans } from '@lingui/macro'
-import PositionListItem from 'components/PositionListItem'
+import { ButtonSecondary } from 'components/Button'
+import { DarkCard } from 'components/Card'
 import React from 'react'
 import styled from 'styled-components/macro'
 import { MEDIA_WIDTHS } from 'theme'
-import { PositionDetails } from 'types/position'
 
 const DesktopHeader = styled.div`
   display: none;
@@ -21,6 +21,15 @@ const DesktopHeader = styled.div`
       margin-right: 12px;
     }
   }
+`
+
+const TokenLogo = styled.img<{ size: string }>`
+  width: ${({ size }) => size};
+  height: ${({ size }) => size};
+  background: radial-gradient(white 60%, #ffffff00 calc(70% + 1px));
+  border-radius: 50%;
+  box-shadow: 0 0 1px white;
+  vertical-align: middle;
 `
 
 const MobileHeader = styled.div`
@@ -60,22 +69,24 @@ const ToggleLabel = styled.button`
 `
 
 type PositionListProps = React.PropsWithChildren<{
-  positions: PositionDetails[]
+  deposits: { logoURI: string; value: string; symbol: string }[]
   setUserHideClosedPositions: any
   userHideClosedPositions: boolean
+  handleWithdraw: () => void
 }>
 
 export default function PositionList({
-  positions,
+  deposits,
   setUserHideClosedPositions,
   userHideClosedPositions,
+  handleWithdraw,
 }: PositionListProps) {
   return (
     <>
       <DesktopHeader>
         <div>
           <Trans>Your positions</Trans>
-          {positions && ' (' + positions.length + ')'}
+          {deposits && ' (' + deposits.length + ')'}
         </div>
 
         <ToggleLabel
@@ -83,9 +94,7 @@ export default function PositionList({
           onClick={() => {
             setUserHideClosedPositions(!userHideClosedPositions)
           }}
-        >
-          {userHideClosedPositions ? <Trans>Show closed positions</Trans> : <Trans>Hide closed positions</Trans>}
-        </ToggleLabel>
+        ></ToggleLabel>
       </DesktopHeader>
       <MobileHeader>
         <Trans>Your positions</Trans>
@@ -94,14 +103,48 @@ export default function PositionList({
             onClick={() => {
               setUserHideClosedPositions(!userHideClosedPositions)
             }}
-          >
-            {userHideClosedPositions ? <Trans>Show closed positions</Trans> : <Trans>Hide closed positions</Trans>}
-          </ToggleLabel>
+          ></ToggleLabel>
         </ToggleWrap>
       </MobileHeader>
-      {positions.map((p) => (
-        <PositionListItem key={p.tokenId.toString()} {...p} />
-      ))}
+      {deposits.map((d) => {
+        return (
+          <DarkCard style={{ padding: '0.6rem' }} key={d.symbol}>
+            <div
+              style={{
+                textAlign: 'center',
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-around',
+                fontSize: '20px',
+                backgroundColor: '#141414',
+                borderRadius: '12px',
+                height: '90px',
+              }}
+            >
+              <TokenLogo size="48px" alt="token logo" src={d.logoURI} style={{ float: 'left' }} />
+              {parseFloat(d.value).toFixed(3)} {d.symbol}
+              {/* <ButtonPrimary
+                as={Link}
+                style={{ borderRadius: '12px', padding: '4px', display: 'inline-block', margin: '10px' }}
+                width="150px"
+                to="/add/0xB704143D415d6a3a9e851DA5e76B64a5D99d718b"
+                disabled={d.symbol == 'WETH'}
+              >
+                Deposit
+              </ButtonPrimary> */}
+              <ButtonSecondary
+                onClick={handleWithdraw}
+                padding="2"
+                style={{ display: 'inline-block', margin: '10px' }}
+                width="150px"
+              >
+                Withdraw
+              </ButtonSecondary>
+            </div>
+          </DarkCard>
+        )
+      })}
     </>
   )
 }

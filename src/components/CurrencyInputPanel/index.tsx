@@ -191,6 +191,7 @@ interface CurrencyInputPanelProps {
   renderBalance?: (amount: CurrencyAmount<Currency>) => ReactNode
   locked?: boolean
   loading?: boolean
+  isCurrencySelectAllowed?: boolean
 }
 
 export default function CurrencyInputPanel({
@@ -213,6 +214,7 @@ export default function CurrencyInputPanel({
   hideInput = false,
   locked = false,
   loading = false,
+  isCurrencySelectAllowed = true,
   ...rest
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
@@ -251,7 +253,7 @@ export default function CurrencyInputPanel({
           )}
 
           <CurrencySelect
-            disabled={!chainAllowed}
+            disabled={!isCurrencySelectAllowed}
             visible={currency !== undefined}
             selected={!!currency}
             hideInput={hideInput}

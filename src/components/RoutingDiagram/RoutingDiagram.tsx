@@ -37,6 +37,7 @@ const RouteRow = styled(Row)`
 const PoolBadge = styled(Badge)`
   display: flex;
   padding: 4px 4px;
+  background: #2a8fba;
 `
 
 const DottedLine = styled.div`
@@ -154,7 +155,7 @@ function Pool({
   // TODO - link pool icon to info.uniswap.org via query params
   return (
     <MouseoverTooltip text={<Trans>{tokenInfo0?.symbol + '/' + tokenInfo1?.symbol} pool</Trans>}>
-      <PoolBadge>
+      <PoolBadge style={{ background: protocol == SoloProtocol.CONC ? '#8e5919' : '#2a8fba' }}>
         <Box margin="0 4px 0 12px">
           <DoubleCurrencyLogo currency0={tokenInfo1} currency1={tokenInfo0} size={20} />
         </Box>

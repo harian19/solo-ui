@@ -84,8 +84,12 @@ export const PageTabs = () => {
         <Trans>NFTs</Trans>
       </MenuItem> */}
       <VerticalDivider />
+      <MenuItem href="/earn" id="earn-nav-link" isActive={pathname.startsWith('/earn')}>
+        <Trans>EARN</Trans>
+      </MenuItem>
+      <VerticalDivider />
       <MenuItem href="/deposit" id="pool-nav-link" isActive={isPoolActive}>
-        <Trans>DEPOSIT</Trans>
+        <Trans>POSITIONS</Trans>
       </MenuItem>
     </>
   )

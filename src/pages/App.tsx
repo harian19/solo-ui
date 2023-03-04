@@ -34,6 +34,7 @@ import { useIsExpertMode } from '../state/user/hooks'
 import DarkModeQueryParamReader from '../theme/components/DarkModeQueryParamReader'
 import { RedirectDuplicateTokenIds } from './AddLiquidity/redirects'
 import { RedirectDuplicateTokenIdsV2 } from './AddLiquidityV2/redirects'
+import Earn from './Earn'
 import Landing from './Landing'
 import MigrateV2 from './MigrateV2'
 import MigrateV2Pair from './MigrateV2/MigrateV2Pair'
@@ -269,6 +270,8 @@ export default function App() {
                     <Route path=":currencyIdA/:currencyIdB/:feeAmount" />
                     <Route path=":currencyIdA/:currencyIdB/:feeAmount/:tokenId" />
                   </Route>
+
+                  <Route path="earn" element={<Earn />} />
 
                   <Route path="remove/v2/:currencyIdA/:currencyIdB" element={<RemoveLiquidity />} />
                   <Route path="remove/:tokenId" element={<RemoveLiquidityV3 />} />

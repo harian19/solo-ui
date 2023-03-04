@@ -6,8 +6,13 @@ import { BrowserEvent, InterfaceElementName, InterfaceEventName } from '@uniswap
 import { Currency, CurrencyAmount, Percent } from '@uniswap/sdk-core'
 import { FeeAmount, NonfungiblePositionManager } from '@uniswap/v3-sdk'
 import { useWeb3React } from '@web3-react/core'
+import SOLO_WETH_DAI_ABI from 'abis/solo/SoloWETHDAIPool.json'
+import WETH_ABI from 'abis/solo/WETH_solo.json'
 import { sendEvent } from 'components/analytics'
+import Loader from 'components/Loader'
 import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter'
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
+import { ethers } from 'ethers'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -44,7 +49,7 @@ import { Bound, Field } from '../../state/mint/v3/actions'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { TransactionType } from '../../state/transactions/types'
 import { useIsExpertMode, useUserSlippageToleranceWithDefault } from '../../state/user/hooks'
-import { ThemedText } from '../../theme'
+import { BackArrow, ThemedText } from '../../theme'
 import approveAmountCalldata from '../../utils/approveAmountCalldata'
 import { calculateGasMargin } from '../../utils/calculateGasMargin'
 import { currencyId } from '../../utils/currencyId'
@@ -77,6 +82,18 @@ export default function SoloDeposit() {
   )
   const hasExistingPosition = !!existingPositionDetails && !positionLoading
   const { position: existingPosition } = useDerivedPositionInfo(existingPositionDetails)
+
+  const signer = provider?.getSigner()
+  const wethContract = new ethers.Contract('0xCC57bcE47D2d624668fe1A388758fD5D91065d33', WETH_ABI, signer)
+  const daiContract = new ethers.Contract('0xB704143D415d6a3a9e851DA5e76B64a5D99d718b', WETH_ABI, signer)
+
+  const soloPoolContract = new ethers.Contract('0xF2EEd1CB7c599f9191eCE6E30f1e8339d8a20155', SOLO_WETH_DAI_ABI, signer)
+
+  const soloPoolContractStatic = new ethers.Contract(
+    '0xF2EEd1CB7c599f9191eCE6E30f1e8339d8a20155',
+    SOLO_WETH_DAI_ABI,
+    provider
+  )
 
   // fee selection from url
   const feeAmount: FeeAmount | undefined =
@@ -165,6 +182,25 @@ export default function SoloDeposit() {
     [independentField]: typedValue,
     [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? '',
   }
+
+  const [isDepositing, setIsDepositing] = useState(false)
+  const [isDepositComplete, setIsDepositComplete] = useState(false)
+
+  const handleDeposit = useCallback(async () => {
+    setIsDepositing(true)
+    try {
+      const userAddress = await signer?.getAddress()
+      const amountToDeposit = ethers.utils.parseEther(formattedAmounts[Field.CURRENCY_A]).toString()
+      await daiContract.approve('0xF2EEd1CB7c599f9191eCE6E30f1e8339d8a20155', amountToDeposit)
+      await soloPoolContract.deposit(amountToDeposit, userAddress, { gasLimit: '1000000' })
+      setIsDepositComplete(true)
+      setIsDepositing(false)
+    } catch (e) {
+      console.error(e)
+      setIsDepositComplete(false)
+      setIsDepositing(false)
+    }
+  }, [daiContract, formattedAmounts, signer, soloPoolContract])
 
   const usdcValues = {
     [Field.CURRENCY_A]: useStablecoinValue(parsedAmounts[Field.CURRENCY_A]),
@@ -429,7 +465,7 @@ export default function SoloDeposit() {
         </ButtonLight>
       </TraceEvent>
     ) : (
-      <ButtonPrimary>Deposit</ButtonPrimary>
+      <ButtonPrimary onClick={handleDeposit}>{isDepositing ? <Loader size="20px" /> : 'Deposit'}</ButtonPrimary>
     )
   //   <AutoColumn gap="md">
   //     {(approvalA === ApprovalState.NOT_APPROVED ||
@@ -520,6 +556,7 @@ export default function SoloDeposit() {
           )}
           pendingText={pendingText}
         />
+        <BackArrow to="/earn" />
         <PageWrapper wide={!hasExistingPosition}>
           <AddRemoveTabs
             creating={false}
@@ -579,21 +616,8 @@ export default function SoloDeposit() {
                     showCommonBases
                     locked={depositADisabled}
                     onCurrencySelect={handleCurrencyASelect}
+                    isCurrencySelectAllowed={true}
                   />
-
-                  {/* <CurrencyInputPanel
-                    value={formattedAmounts[Field.CURRENCY_B]}
-                    onUserInput={onFieldBInput}
-                    onMax={() => {
-                      onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
-                    }}
-                    showMaxButton={!atMaxAmounts[Field.CURRENCY_B]}
-                    fiatValue={usdcValues[Field.CURRENCY_B]}
-                    currency={currencies[Field.CURRENCY_B] ?? null}
-                    id="add-liquidity-input-tokenb"
-                    showCommonBases
-                    locked={depositBDisabled}
-                  /> */}
                 </AutoColumn>
               </DynamicSection>
             </div>

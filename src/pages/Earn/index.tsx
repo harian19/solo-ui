@@ -1,19 +1,22 @@
 import { Trans } from '@lingui/macro'
-import { Trace, TraceEvent } from '@uniswap/analytics'
-import { BrowserEvent, InterfaceElementName, InterfaceEventName, InterfacePageName } from '@uniswap/analytics-events'
+import { Trace } from '@uniswap/analytics'
+import { InterfacePageName } from '@uniswap/analytics-events'
 import { useWeb3React } from '@web3-react/core'
 import SOLO_WETH_DAI_ABI from 'abis/solo/SoloWETHDAIPool.json'
 import WETH_ABI from 'abis/solo/WETH_solo.json'
-import { ButtonGray, ButtonPrimary, ButtonText } from 'components/Button'
+import Badge from 'components/Badge'
+import { ButtonGray, ButtonPrimary } from 'components/Button'
+import { ButtonSecondary } from 'components/Button'
+import { DarkCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import { FlyoutAlignment, Menu } from 'components/Menu'
-import PositionList from 'components/PositionList'
 import { RowBetween, RowFixed } from 'components/Row'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { isSupportedChain } from 'constants/chains'
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { ethers } from 'ethers'
 import { useV3Positions } from 'hooks/useV3Positions'
+import { LoadingRows } from 'pages/Pool/styleds'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, BookOpen, ChevronDown, ChevronsRight, Inbox, Layers, PlusCircle } from 'react-feather'
 import { Link } from 'react-router-dom'
@@ -21,10 +24,11 @@ import { useToggleWalletModal } from 'state/application/hooks'
 import { useUserHideClosedPositions } from 'state/user/hooks'
 import styled, { css, useTheme } from 'styled-components/macro'
 import { HideSmall, ThemedText } from 'theme'
+import { Z_INDEX } from 'theme/zIndex'
 import { PositionDetails } from 'types/position'
 
+import { MouseoverTooltip } from '../../components/Tooltip'
 import { V2_FACTORY_ADDRESSES } from '../../constants/addresses'
-import { LoadingRows } from './styleds'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 68px 8px 0px;
@@ -116,6 +120,15 @@ const IconStyle = css`
   margin-bottom: 0.5rem;
 `
 
+const TokenLogo = styled.img<{ size: string }>`
+  width: ${({ size }) => size};
+  height: ${({ size }) => size};
+  background: radial-gradient(white 60%, #ffffff00 calc(70% + 1px));
+  border-radius: 50%;
+  box-shadow: 0 0 1px white;
+  vertical-align: middle;
+`
+
 const NetworkIcon = styled(AlertTriangle)`
   ${IconStyle}
 `
@@ -133,6 +146,15 @@ const ResponsiveButtonPrimary = styled(ButtonPrimary)`
     flex: 1 1 auto;
     width: 100%;
   `};
+`
+
+const APRBadge = styled(Badge)`
+  background-color: ${({ theme }) => theme.deprecated_bg3};
+  border-radius: 4px;
+  color: #d6d5d6;
+  font-size: 16px;
+  padding: 4px 8px;
+  z-index: ${Z_INDEX.sticky + 1};
 `
 
 const MainContentWrapper = styled.main`
@@ -174,9 +196,9 @@ function WrongNetworkCard() {
         <AutoColumn gap="lg" justify="center">
           <AutoColumn gap="lg" style={{ width: '100%' }}>
             <TitleRow padding="0">
-              <ThemedText.DeprecatedLargeHeader>
-                <Trans>Positions</Trans>
-              </ThemedText.DeprecatedLargeHeader>
+              <ThemedText.LargeHeader>
+                <Trans>Earn</Trans>
+              </ThemedText.LargeHeader>
             </TitleRow>
 
             <MainContentWrapper>
@@ -239,9 +261,9 @@ export default function Pool() {
   }, [signer, soloPoolContract.callStatic, soloPoolContractStatic])
 
   const handleWithdraw = useCallback(async () => {
+    const userAddress = await signer?.getAddress()
+    const deps = await soloPoolContractStatic.balanceOf(userAddress)
     try {
-      const userAddress = await signer?.getAddress()
-      const deps = await soloPoolContractStatic.balanceOf(userAddress)
       await soloPoolContract.withdraw(deps, userAddress)
     } catch (e) {
       console.error(e)
@@ -262,11 +284,7 @@ export default function Pool() {
 
   useEffect(() => {
     if (showConnectAWallet) return
-    try {
-      fetchDeposits()
-    } catch (e) {
-      console.error(e)
-    }
+    fetchDeposits()
   }, [fetchDeposits, showConnectAWallet])
 
   const filteredPositions = useMemo(
@@ -330,7 +348,7 @@ export default function Pool() {
           <AutoColumn gap="lg" style={{ width: '100%' }}>
             <TitleRow padding="0">
               <ThemedText.DeprecatedLargeHeader>
-                <Trans>Positions</Trans>
+                <Trans>Earn</Trans>
               </ThemedText.DeprecatedLargeHeader>
               <ButtonRow>
                 {showV2Features && (
@@ -347,57 +365,134 @@ export default function Pool() {
                     )}
                   />
                 )}
-                <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/earn">
-                  + <Trans>New Position</Trans>
-                </ResponsiveButtonPrimary>
               </ButtonRow>
             </TitleRow>
 
             <MainContentWrapper>
-              {positionsLoading ? (
-                <PositionsLoadingPlaceholder />
-              ) : deposits.length > 0 ? (
-                <>
-                  <PositionList
-                    handleWithdraw={handleWithdraw}
-                    deposits={deposits}
-                    setUserHideClosedPositions={setUserHideClosedPositions}
-                    userHideClosedPositions={userHideClosedPositions}
+              <DarkCard style={{ padding: '0.6rem' }} key="DAI">
+                <div
+                  style={{
+                    textAlign: 'center',
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-around',
+                    fontSize: '20px',
+                    backgroundColor: '#141414',
+                    borderRadius: '12px',
+                    height: '90px',
+                  }}
+                >
+                  <TokenLogo
+                    size="48px"
+                    alt="token logo"
+                    src="https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png"
+                    style={{ float: 'left' }}
                   />
-                </>
-              ) : (
-                <ErrorContainer>
-                  <ThemedText.DeprecatedBody color={theme.textTertiary} textAlign="center">
-                    <InboxIcon strokeWidth={1} style={{ marginTop: '2em' }} />
-                    <div>
-                      <Trans>Your active deposits will appear here.</Trans>
-                    </div>
-                  </ThemedText.DeprecatedBody>
-                  {!showConnectAWallet && closedPositions.length > 0 && (
-                    <ButtonText
-                      style={{ marginTop: '.5rem' }}
-                      onClick={() => setUserHideClosedPositions(!userHideClosedPositions)}
-                    >
-                      <Trans>Show closed positions</Trans>
-                    </ButtonText>
-                  )}
-                  {showConnectAWallet && (
-                    <TraceEvent
-                      events={[BrowserEvent.onClick]}
-                      name={InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED}
-                      properties={{ received_swap_quote: false }}
-                      element={InterfaceElementName.CONNECT_WALLET_BUTTON}
-                    >
-                      <ButtonPrimary
-                        style={{ marginTop: '2em', marginBottom: '2em', padding: '8px 16px' }}
-                        onClick={toggleWalletModal}
-                      >
-                        <Trans>Connect a wallet</Trans>
-                      </ButtonPrimary>
-                    </TraceEvent>
-                  )}
-                </ErrorContainer>
-              )}
+                  <span>
+                    <MouseoverTooltip text="Annual Percentage Rate">
+                      <APRBadge>APR 16.5%</APRBadge>
+                    </MouseoverTooltip>
+                  </span>
+
+                  <ButtonSecondary
+                    as={Link}
+                    style={{
+                      borderRadius: '12px',
+                      padding: '6px',
+                      display: 'inline-block',
+                      margin: '10px',
+                      color: '#d6d5d6',
+                    }}
+                    width="150px"
+                    to="/add/0xB704143D415d6a3a9e851DA5e76B64a5D99d718b"
+                  >
+                    Earn
+                  </ButtonSecondary>
+                </div>
+              </DarkCard>
+              <DarkCard style={{ padding: '0.6rem' }} key="DAI">
+                <div
+                  style={{
+                    textAlign: 'center',
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-around',
+                    fontSize: '20px',
+                    backgroundColor: '#141414',
+                    borderRadius: '12px',
+                    height: '90px',
+                  }}
+                >
+                  <TokenLogo
+                    size="48px"
+                    alt="token logo"
+                    src="https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png"
+                    style={{ float: 'left' }}
+                  />
+                  <span>
+                    <MouseoverTooltip text="Annual Percentage Rate">
+                      <APRBadge>APR 14.2%</APRBadge>
+                    </MouseoverTooltip>
+                  </span>
+                  <ButtonSecondary
+                    as={Link}
+                    style={{
+                      borderRadius: '12px',
+                      padding: '6px',
+                      display: 'inline-block',
+                      margin: '10px',
+                      color: '#d6d5d6',
+                    }}
+                    width="150px"
+                    to="/add/0xB704143D415d6a3a9e851DA5e76B64a5D99d718b"
+                  >
+                    Earn
+                  </ButtonSecondary>
+                </div>
+              </DarkCard>
+              <DarkCard style={{ padding: '0.6rem' }} key="DAI">
+                <div
+                  style={{
+                    textAlign: 'center',
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-around',
+                    fontSize: '20px',
+                    backgroundColor: '#141414',
+                    borderRadius: '12px',
+                    height: '90px',
+                  }}
+                >
+                  <TokenLogo
+                    size="48px"
+                    alt="token logo"
+                    src="https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png"
+                    style={{ float: 'left' }}
+                  />
+                  <span>
+                    <MouseoverTooltip text="Annual Percentage Rate">
+                      <APRBadge>APR 12.7%</APRBadge>
+                    </MouseoverTooltip>
+                  </span>
+                  <ButtonSecondary
+                    as={Link}
+                    style={{
+                      borderRadius: '12px',
+                      padding: '6px',
+                      display: 'inline-block',
+                      margin: '10px',
+                      color: '#d6d5d6',
+                    }}
+                    width="150px"
+                    to="/add/0xB704143D415d6a3a9e851DA5e76B64a5D99d718b"
+                  >
+                    Earn
+                  </ButtonSecondary>
+                </div>
+              </DarkCard>
             </MainContentWrapper>
             <HideSmall>{/* <CTACards /> */}</HideSmall>
           </AutoColumn>

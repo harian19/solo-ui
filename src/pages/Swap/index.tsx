@@ -442,10 +442,10 @@ export default function Swap({ className }: { className?: string }) {
             soloPoolContract?.address,
             ethers.utils.parseEther(formattedAmounts[Field.OUTPUT]).toString()
           )
+      setIsApproved(true)
+      setIsAllowancePending(false)
     } finally {
       setApprovalPending(false)
-      setIsAllowancePending(false)
-      setIsApproved(true)
       updateSimulatedTxn()
     }
   }, [
@@ -532,10 +532,9 @@ export default function Swap({ className }: { className?: string }) {
               }
             )
       setTxnHash(tx.hash)
+      setIsTxnComplete(true)
     } catch (e) {
       console.error(e)
-    } finally {
-      setIsTxnComplete(true)
     }
   }, [currencies, independentField, soloPoolContract, formattedAmounts])
 

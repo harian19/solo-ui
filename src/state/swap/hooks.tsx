@@ -97,8 +97,8 @@ export function useDerivedSwapInfo(): {
     recipient,
   } = useSwapState()
 
-  const inputCurrency = useCurrency(inputCurrencyId)
-  const outputCurrency = useCurrency(outputCurrencyId)
+  const inputCurrency = useCurrency(inputCurrencyId ?? '0xCC57bcE47D2d624668fe1A388758fD5D91065d33')
+  const outputCurrency = useCurrency(outputCurrencyId ?? '0xB704143D415d6a3a9e851DA5e76B64a5D99d718b')
   const recipientLookup = useENS(recipient ?? undefined)
   const to: string | null = (recipient === null ? account : recipientLookup.address) ?? null
 
@@ -224,7 +224,7 @@ export function queryParametersToSwapState(parsedQs: ParsedQs): SwapState {
 
   if (inputCurrency === '' && outputCurrency === '' && typedValue === '' && independentField === Field.INPUT) {
     // Defaults to having the native currency selected
-    inputCurrency = 'ETH'
+    inputCurrency = '0xCC57bcE47D2d624668fe1A388758fD5D91065d33'
   } else if (inputCurrency === outputCurrency) {
     // clear output if identical
     outputCurrency = ''
