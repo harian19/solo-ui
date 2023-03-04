@@ -8044,7 +8044,7 @@ export const DEFAULT_TOKEN_LIST: TokenList = {
     },
     {
       name: 'Wrapped Ether',
-      address: '0xb91bc1088d1f5c90f2dcc4b35bfeef4188bf32e6',
+      address: '0xCC57bcE47D2d624668fe1A388758fD5D91065d33',
       symbol: 'WETH',
       decimals: 18,
       chainId: 80001,
@@ -8061,7 +8061,7 @@ export const DEFAULT_TOKEN_LIST: TokenList = {
     },
     {
       name: 'Dai Stablecoin',
-      address: '0xea9454e867d012b1d44cdf5f320903eb38351ffa',
+      address: '0xB704143D415d6a3a9e851DA5e76B64a5D99d718b',
       symbol: 'DAI',
       decimals: 18,
       chainId: 80001,

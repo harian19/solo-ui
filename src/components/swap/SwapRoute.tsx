@@ -9,7 +9,6 @@ import { useWeb3React } from '@web3-react/core'
 import AnimatedDropdown from 'components/AnimatedDropdown'
 import { AutoColumn } from 'components/Column'
 import { LoadingRows } from 'components/Loader/styled'
-import RoutingDiagram from 'components/RoutingDiagram/RoutingDiagram'
 import { AutoRow, RowBetween } from 'components/Row'
 import { SUPPORTED_GAS_ESTIMATE_CHAIN_IDS } from 'constants/chains'
 import useAutoRouterSupported from 'hooks/useAutoRouterSupported'
@@ -50,7 +49,7 @@ interface SwapRouteProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export default memo(function SwapRoute({ trade, syncing, fixedOpen = false, ...rest }: SwapRouteProps) {
   const autoRouterSupported = useAutoRouterSupported()
-  const routes = getTokenPath(trade)
+  // const routes = getTokenPath(trade)
   const [open, setOpen] = useState(false)
   const { chainId } = useWeb3React()
 
@@ -85,11 +84,12 @@ export default memo(function SwapRoute({ trade, syncing, fixedOpen = false, ...r
               <div style={{ width: '400px', height: '30px' }} />
             </LoadingRows>
           ) : (
-            <RoutingDiagram
-              currencyIn={trade.inputAmount.currency}
-              currencyOut={trade.outputAmount.currency}
-              routes={routes}
-            />
+            <></>
+            // <RoutingDiagram
+            //   currencyIn={trade.inputAmount.currency}
+            //   currencyOut={trade.outputAmount.currency}
+            //   routes={routes}
+            // />
           )}
 
           {autoRouterSupported && (
@@ -118,10 +118,21 @@ export default memo(function SwapRoute({ trade, syncing, fixedOpen = false, ...r
   )
 })
 
+export enum SoloProtocol {
+  FLEX = 'FLEX',
+  CONC = 'CONCENTRATED',
+}
+
 export interface RoutingDiagramEntry {
   percent: Percent
   path: [Currency, Currency, FeeAmount][]
-  protocol: Protocol
+  protocol: SoloProtocol | Protocol
+}
+
+export interface SoloRoutingDiagramEntry {
+  percent: number
+  path: [Currency, Currency, FeeAmount][]
+  protocol: SoloProtocol | Protocol
 }
 
 const V2_DEFAULT_FEE_TIER = 3000
@@ -129,6 +140,7 @@ const V2_DEFAULT_FEE_TIER = 3000
 /**
  * Loops through all routes on a trade and returns an array of diagram entries.
  */
+// eslint-disable-next-line import/no-unused-modules
 export function getTokenPath(trade: InterfaceTrade<Currency, Currency, TradeType>): RoutingDiagramEntry[] {
   return trade.swaps.map(({ route: { path: tokenPath, pools, protocol }, inputAmount, outputAmount }) => {
     const portion =

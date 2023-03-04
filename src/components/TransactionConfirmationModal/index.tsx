@@ -88,7 +88,7 @@ function ConfirmationPendingContent({
     </Wrapper>
   )
 }
-function TransactionSubmittedContent({
+export function TransactionSubmittedContent({
   onDismiss,
   chainId,
   hash,

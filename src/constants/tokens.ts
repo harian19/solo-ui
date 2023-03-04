@@ -126,7 +126,7 @@ export const DAI_POLYGON = new Token(
 )
 export const DAI_POLYGON_MUMBAI = new Token(
   SupportedChainId.POLYGON_MUMBAI,
-  '0xea9454e867d012b1d44cdf5f320903eb38351ffa',
+  '0xB704143D415d6a3a9e851DA5e76B64a5D99d718b',
   18,
   'DAI',
   'Dai Stablecoin'
@@ -252,7 +252,7 @@ export const SWISE = new Token(
 )
 export const WETH_POLYGON_MUMBAI = new Token(
   SupportedChainId.POLYGON_MUMBAI,
-  '0xb91bc1088d1f5c90f2dcc4b35bfeef4188bf32e6',
+  '0xCC57bcE47D2d624668fe1A388758fD5D91065d33',
   18,
   'WETH',
   'Wrapped Ether'

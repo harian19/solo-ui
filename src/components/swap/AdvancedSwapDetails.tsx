@@ -62,7 +62,7 @@ export function AdvancedSwapDetails({
     }
   }, [trade])
 
-  return !trade ? null : (
+  return (
     <StyledCard>
       <AutoColumn gap="sm">
         <RowBetween>
@@ -119,7 +119,7 @@ export function AdvancedSwapDetails({
               disableHover={hideInfoTooltips}
             >
               <ThemedText.DeprecatedSubHeader color={theme.textTertiary}>
-                {trade.tradeType === TradeType.EXACT_INPUT ? (
+                {trade?.tradeType === TradeType.EXACT_INPUT ? (
                   <Trans>Minimum received</Trans>
                 ) : (
                   <Trans>Maximum sent</Trans>
@@ -130,9 +130,9 @@ export function AdvancedSwapDetails({
           </RowFixed>
           <TextWithLoadingPlaceholder syncing={syncing} width={70}>
             <ThemedText.DeprecatedBlack textAlign="right" fontSize={14} color={theme.textTertiary}>
-              {trade.tradeType === TradeType.EXACT_INPUT
-                ? `${trade.minimumAmountOut(allowedSlippage).toSignificant(6)} ${trade.outputAmount.currency.symbol}`
-                : `${trade.maximumAmountIn(allowedSlippage).toSignificant(6)} ${trade.inputAmount.currency.symbol}`}
+              {trade?.tradeType === TradeType.EXACT_INPUT
+                ? `${trade?.minimumAmountOut(allowedSlippage).toSignificant(6)} ${trade?.outputAmount.currency.symbol}`
+                : `${trade?.maximumAmountIn(allowedSlippage).toSignificant(6)} ${trade?.inputAmount.currency.symbol}`}
             </ThemedText.DeprecatedBlack>
           </TextWithLoadingPlaceholder>
         </RowBetween>
@@ -152,7 +152,7 @@ export function AdvancedSwapDetails({
             </MouseoverTooltip>
             <TextWithLoadingPlaceholder syncing={syncing} width={50}>
               <ThemedText.DeprecatedBlack textAlign="right" fontSize={14} color={theme.textTertiary}>
-                ~${trade.gasUseEstimateUSD.toFixed(2)}
+                ~${trade?.gasUseEstimateUSD.toFixed(2)}
               </ThemedText.DeprecatedBlack>
             </TextWithLoadingPlaceholder>
           </RowBetween>

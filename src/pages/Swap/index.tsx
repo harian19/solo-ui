@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unused-modules */
 import { Trans } from '@lingui/macro'
 import { sendAnalyticsEvent, Trace, TraceEvent } from '@uniswap/analytics'
 import {
@@ -11,14 +12,21 @@ import {
 import { Trade } from '@uniswap/router-sdk'
 import { Currency, CurrencyAmount, Percent, Token, TradeType } from '@uniswap/sdk-core'
 import { UNIVERSAL_ROUTER_ADDRESS } from '@uniswap/universal-router-sdk'
+import { FeeAmount } from '@uniswap/v3-sdk'
 import { useWeb3React } from '@web3-react/core'
+import SOLO_WETH_DAI_ABI from 'abis/solo/SoloWETHDAIPool.json'
+import WETH_ABI from 'abis/solo/WETH.json'
 import { sendEvent } from 'components/analytics'
+import Modal from 'components/Modal'
 import PriceImpactWarning from 'components/swap/PriceImpactWarning'
 import SwapDetailsDropdown from 'components/swap/SwapDetailsDropdown'
+import { SoloProtocol, SoloRoutingDiagramEntry } from 'components/swap/SwapRoute'
 import TokenSafetyModal from 'components/TokenSafety/TokenSafetyModal'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { TransactionSubmittedContent } from 'components/TransactionConfirmationModal'
 import Widget from 'components/Widget'
-import { isSupportedChain } from 'constants/chains'
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
+import { BigNumber, ethers } from 'ethers'
 import { usePermit2Enabled } from 'featureFlags/flags/permit2'
 import { useSwapWidgetEnabled } from 'featureFlags/flags/swapWidget'
 import usePermit2Allowance, { AllowanceState } from 'hooks/usePermit2Allowance'
@@ -35,7 +43,6 @@ import { useToggleWalletModal } from 'state/application/hooks'
 import { InterfaceTrade } from 'state/routing/types'
 import { TradeState } from 'state/routing/types'
 import styled, { useTheme } from 'styled-components/macro'
-import invariant from 'tiny-invariant'
 import { currencyAmountToPreciseFloat, formatTransactionAmount } from 'utils/formatNumbers'
 
 import AddressInputPanel from '../../components/AddressInputPanel'
@@ -45,7 +52,6 @@ import { AutoColumn } from '../../components/Column'
 import SwapCurrencyInputPanel from '../../components/CurrencyInputPanel/SwapCurrencyInputPanel'
 import Loader from '../../components/Loader'
 import { AutoRow } from '../../components/Row'
-import confirmPriceImpactWithoutFee from '../../components/swap/confirmPriceImpactWithoutFee'
 import ConfirmSwapModal from '../../components/swap/ConfirmSwapModal'
 import { ArrowWrapper, PageWrapper, SwapCallbackError, SwapWrapper } from '../../components/swap/styleds'
 import SwapHeader from '../../components/swap/SwapHeader'
@@ -88,6 +94,7 @@ const SwapSection = styled.div`
   background-color: ${({ theme }) => theme.backgroundModule};
   border-radius: 12px;
   padding: 16px;
+  margin-bottom: 4px;
   color: ${({ theme }) => theme.textSecondary};
   font-size: 14px;
   line-height: 20px;
@@ -220,6 +227,17 @@ export default function Swap({ className }: { className?: string }) {
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const { address: recipientAddress } = useENSAddress(recipient)
 
+  const [isApproved, setIsApproved] = useState(false)
+  const [isTxnComplete, setIsTxnComplete] = useState(false)
+  const [txnHash, setTxnHash] = useState('')
+  const [simulatedTxnOutputs, setSimulatedTxnOutputs] = useState<BigNumber[]>([
+    ethers.utils.parseEther('0'),
+    ethers.utils.parseEther('0'),
+    ethers.utils.parseEther('0'),
+    ethers.utils.parseEther('0'),
+  ])
+  const [routes, setRoutes] = useState<SoloRoutingDiagramEntry[]>([])
+
   const parsedAmounts = useMemo(
     () =>
       showWrap
@@ -231,7 +249,7 @@ export default function Swap({ className }: { className?: string }) {
             [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
             [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
           },
-    [independentField, parsedAmount, showWrap, trade]
+    [independentField, parsedAmount, showWrap, trade?.inputAmount, trade?.outputAmount]
   )
   const fiatValueInput = useStablecoinValue(parsedAmounts[Field.INPUT])
   const fiatValueOutput = useStablecoinValue(parsedAmounts[Field.OUTPUT])
@@ -252,19 +270,6 @@ export default function Swap({ className }: { className?: string }) {
   const { onSwitchTokens, onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers()
   const isValid = !swapInputError
   const dependentField: Field = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT
-
-  const handleTypeInput = useCallback(
-    (value: string) => {
-      onUserInput(Field.INPUT, value)
-    },
-    [onUserInput]
-  )
-  const handleTypeOutput = useCallback(
-    (value: string) => {
-      onUserInput(Field.OUTPUT, value)
-    },
-    [onUserInput]
-  )
 
   // reset if they close warning without tokens in params
   const handleDismissTokenWarning = useCallback(() => {
@@ -317,28 +322,27 @@ export default function Swap({ className }: { className?: string }) {
   )
   const isApprovalLoading = allowance.state === AllowanceState.REQUIRED && allowance.isApprovalLoading
   const [isAllowancePending, setIsAllowancePending] = useState(false)
-  const updateAllowance = useCallback(async () => {
-    invariant(allowance.state === AllowanceState.REQUIRED)
-    setIsAllowancePending(true)
-    try {
-      await allowance.approveAndPermit()
-      sendAnalyticsEvent(InterfaceEventName.APPROVE_TOKEN_TXN_SUBMITTED, {
-        chain_id: chainId,
-        token_symbol: maximumAmountIn?.currency.symbol,
-        token_address: maximumAmountIn?.currency.address,
-      })
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setIsAllowancePending(false)
-    }
-  }, [allowance, chainId, maximumAmountIn?.currency.address, maximumAmountIn?.currency.symbol])
 
   // check whether the user has approved the router on the input token
   const [approvalState, approveCallback] = useApproveCallbackFromTrade(
     permit2Enabled ? undefined : trade,
     allowedSlippage
   )
+  const { provider } = useWeb3React()
+  const signer = provider?.getSigner()
+  const wethContract = new ethers.Contract('0xCC57bcE47D2d624668fe1A388758fD5D91065d33', WETH_ABI, signer)
+  const daiContract = new ethers.Contract('0xB704143D415d6a3a9e851DA5e76B64a5D99d718b', WETH_ABI, signer)
+
+  const soloPoolContract = new ethers.Contract('0xF2EEd1CB7c599f9191eCE6E30f1e8339d8a20155', SOLO_WETH_DAI_ABI, signer)
+  // const privateWallet = new ethers.Wallet('0xe185a5c33d4fd669b6dc0c8030ef4ebe728323c8ea3e1339bd5924e0159fccc2')
+
+  // const signerPrivate = provider?.getSigner('0xe185a5c33d4fd669b6dc0c8030ef4ebe728323c8ea3e1339bd5924e0159fccc2')
+  const soloPoolContractStatic = new ethers.Contract(
+    '0xF2EEd1CB7c599f9191eCE6E30f1e8339d8a20155',
+    SOLO_WETH_DAI_ABI,
+    provider
+  )
+
   const transactionDeadline = useTransactionDeadline()
   const {
     state: signatureState,
@@ -346,35 +350,132 @@ export default function Swap({ className }: { className?: string }) {
     gatherPermitSignature,
   } = useERC20PermitFromTrade(permit2Enabled ? undefined : trade, allowedSlippage, transactionDeadline)
 
+  const updateSimulatedTxn = useCallback(async () => {
+    try {
+      const op =
+        currencies[Field.INPUT]?.symbol == 'WETH'
+          ? independentField === Field.INPUT
+            ? await soloPoolContractStatic
+                ?.connect('0x3746f57a8Ef22860f61d8a6e694B14de258a96aE')
+                ?.callStatic.swapExactInput(0, ethers.utils.parseEther(formattedAmounts[Field.INPUT]).toString(), {
+                  gasLimit: '1000000',
+                })
+            : await soloPoolContractStatic
+                ?.connect('0x3746f57a8Ef22860f61d8a6e694B14de258a96aE')
+                ?.callStatic.swapExactInput(0, ethers.utils.parseEther(formattedAmounts[Field.OUTPUT]).toString(), {
+                  gasLimit: '1000000',
+                })
+          : independentField === Field.INPUT
+          ? await soloPoolContractStatic
+              ?.connect('0x3746f57a8Ef22860f61d8a6e694B14de258a96aE')
+              ?.callStatic.swapExactInput(ethers.utils.parseEther(formattedAmounts[Field.INPUT]).toString(), 0, {
+                gasLimit: '1000000',
+              })
+          : await soloPoolContractStatic
+              ?.connect('0x3746f57a8Ef22860f61d8a6e694B14de258a96aE')
+              ?.callStatic.swapExactInput(ethers.utils.parseEther(formattedAmounts[Field.OUTPUT]).toString(), 0, {
+                gasLimit: '1000000',
+              })
+
+      setSimulatedTxnOutputs(op)
+      if (currencies.INPUT && currencies.OUTPUT) {
+        const newRoutes: SoloRoutingDiagramEntry[] = []
+        newRoutes.push({
+          percent:
+            ((parseFloat(ethers.utils.formatUnits(simulatedTxnOutputs[0])) +
+              parseFloat(ethers.utils.formatUnits(simulatedTxnOutputs[1])) -
+              parseFloat(ethers.utils.formatUnits(simulatedTxnOutputs[2])) -
+              parseFloat(ethers.utils.formatUnits(simulatedTxnOutputs[3]))) /
+              (parseFloat(ethers.utils.formatUnits(simulatedTxnOutputs[0])) +
+                parseFloat(ethers.utils.formatUnits(simulatedTxnOutputs[1])))) *
+            100,
+          path: [[currencies.INPUT, currencies.OUTPUT, FeeAmount.LOW]],
+          protocol: SoloProtocol.FLEX,
+        })
+        newRoutes.push({
+          percent:
+            ((parseFloat(ethers.utils.formatUnits(simulatedTxnOutputs[2])) +
+              parseFloat(ethers.utils.formatUnits(simulatedTxnOutputs[3]))) /
+              (parseFloat(ethers.utils.formatUnits(simulatedTxnOutputs[0])) +
+                parseFloat(ethers.utils.formatUnits(simulatedTxnOutputs[1])))) *
+            100,
+          path: [[currencies.INPUT, currencies.OUTPUT, FeeAmount.LOW]],
+          protocol: SoloProtocol.CONC,
+        })
+        setRoutes(newRoutes)
+      }
+    } catch (e) {
+      console.error(e)
+      setRoutes([])
+      setSimulatedTxnOutputs([
+        ethers.utils.parseEther('0'),
+        ethers.utils.parseEther('0'),
+        ethers.utils.parseEther('0'),
+        ethers.utils.parseEther('0'),
+      ])
+    }
+  }, [currencies, formattedAmounts, independentField, simulatedTxnOutputs, soloPoolContractStatic])
+
+  useEffect(() => {
+    updateSimulatedTxn()
+  }, [parsedAmount, updateSimulatedTxn, isApproved, isApprovalLoading])
+
   const [approvalPending, setApprovalPending] = useState<boolean>(false)
   const handleApprove = useCallback(async () => {
     setApprovalPending(true)
+    setIsAllowancePending(true)
     try {
-      if (signatureState === UseERC20PermitState.NOT_SIGNED && gatherPermitSignature) {
-        try {
-          await gatherPermitSignature()
-        } catch (error) {
-          // try to approve if gatherPermitSignature failed for any reason other than the user rejecting it
-          if (error?.code !== 4001) {
-            await approveCallback()
-          }
-        }
-      } else {
-        await approveCallback()
-
-        sendEvent({
-          category: 'Swap',
-          action: 'Approve',
-          label: [TRADE_STRING, trade?.inputAmount?.currency.symbol].join('/'),
-        })
-      }
+      currencies[Field.INPUT]?.symbol == 'WETH'
+        ? independentField === Field.INPUT
+          ? await wethContract?.approve(
+              soloPoolContract?.address,
+              ethers.utils.parseEther(formattedAmounts[Field.INPUT]).toString()
+            )
+          : daiContract?.approve(
+              soloPoolContract?.address,
+              ethers.utils.parseEther(formattedAmounts[Field.OUTPUT]).toString()
+            )
+        : independentField === Field.INPUT
+        ? daiContract?.approve(
+            soloPoolContract?.address,
+            ethers.utils.parseEther(formattedAmounts[Field.INPUT]).toString()
+          )
+        : wethContract?.approve(
+            soloPoolContract?.address,
+            ethers.utils.parseEther(formattedAmounts[Field.OUTPUT]).toString()
+          )
     } finally {
       setApprovalPending(false)
+      setIsAllowancePending(false)
+      setIsApproved(true)
+      updateSimulatedTxn()
     }
-  }, [signatureState, gatherPermitSignature, approveCallback, trade?.inputAmount?.currency.symbol])
+  }, [
+    currencies,
+    independentField,
+    wethContract,
+    soloPoolContract?.address,
+    formattedAmounts,
+    daiContract,
+    updateSimulatedTxn,
+  ])
 
   // check if user has gone through approval process, used to show two step buttons, reset on token change
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
+
+  const handleTypeInput = useCallback(
+    async (value: string) => {
+      onUserInput(Field.INPUT, value)
+      updateSimulatedTxn()
+    },
+    [onUserInput, updateSimulatedTxn]
+  )
+  const handleTypeOutput = useCallback(
+    (value: string) => {
+      onUserInput(Field.OUTPUT, value)
+    },
+    [onUserInput]
+  )
 
   // mark when a user has submitted an approval, reset onTokenSelection for input field
   useEffect(() => {
@@ -398,55 +499,47 @@ export default function Swap({ className }: { className?: string }) {
     allowance.state === AllowanceState.ALLOWED ? allowance.permitSignature : undefined
   )
 
-  const handleSwap = useCallback(() => {
-    if (!swapCallback) {
-      return
+  const handleSwap = useCallback(async () => {
+    try {
+      const tx =
+        currencies[Field.INPUT]?.symbol == 'WETH'
+          ? independentField === Field.INPUT
+            ? await soloPoolContract?.swapExactInput(
+                0,
+                ethers.utils.parseEther(formattedAmounts[Field.INPUT]).toString(),
+                {
+                  gasLimit: '1000000',
+                }
+              )
+            : await soloPoolContract?.swapExactInput(
+                0,
+                ethers.utils.parseEther(formattedAmounts[Field.OUTPUT]).toString(),
+                {
+                  gasLimit: '1000000',
+                }
+              )
+          : independentField === Field.INPUT
+          ? await soloPoolContract?.swapExactInput(
+              ethers.utils.parseEther(formattedAmounts[Field.INPUT]).toString(),
+              0,
+              {
+                gasLimit: '1000000',
+              }
+            )
+          : await soloPoolContract?.swapExactInput(
+              ethers.utils.parseEther(formattedAmounts[Field.OUTPUT]).toString(),
+              0,
+              {
+                gasLimit: '1000000',
+              }
+            )
+      setTxnHash(tx.hash)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setIsTxnComplete(true)
     }
-    if (stablecoinPriceImpact && !confirmPriceImpactWithoutFee(stablecoinPriceImpact)) {
-      return
-    }
-    setSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
-    swapCallback()
-      .then((hash) => {
-        setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash })
-        sendEvent({
-          category: 'Swap',
-          action: 'transaction hash',
-          label: hash,
-        })
-        sendEvent({
-          category: 'Swap',
-          action:
-            recipient === null
-              ? 'Swap w/o Send'
-              : (recipientAddress ?? recipient) === account
-              ? 'Swap w/o Send + recipient'
-              : 'Swap w/ Send',
-          label: [TRADE_STRING, trade?.inputAmount?.currency?.symbol, trade?.outputAmount?.currency?.symbol, 'MH'].join(
-            '/'
-          ),
-        })
-      })
-      .catch((error) => {
-        setSwapState({
-          attemptingTxn: false,
-          tradeToConfirm,
-          showConfirm,
-          swapErrorMessage: error.message,
-          txHash: undefined,
-        })
-      })
-  }, [
-    swapCallback,
-    stablecoinPriceImpact,
-    tradeToConfirm,
-    showConfirm,
-    recipient,
-    recipientAddress,
-    account,
-    trade?.inputAmount?.currency?.symbol,
-    trade?.outputAmount?.currency?.symbol,
-  ])
+  }, [currencies, independentField, soloPoolContract, formattedAmounts])
 
   // errors
   const [swapQuoteReceivedDate, setSwapQuoteReceivedDate] = useState<Date | undefined>()
@@ -472,6 +565,8 @@ export default function Swap({ className }: { className?: string }) {
     !(priceImpactSeverity > 3 && !isExpertMode)
 
   const handleConfirmDismiss = useCallback(() => {
+    setIsTxnComplete(false)
+    setIsApproved(false)
     setSwapState({ showConfirm: false, tradeToConfirm, attemptingTxn, swapErrorMessage, txHash })
     // if there was a tx hash, we want to clear the input
     if (txHash) {
@@ -602,9 +697,11 @@ export default function Swap({ className }: { className?: string }) {
                       value={formattedAmounts[Field.INPUT]}
                       showMaxButton={showMaxButton}
                       currency={currencies[Field.INPUT] ?? null}
-                      onUserInput={handleTypeInput}
+                      onUserInput={async (value) => {
+                        handleTypeInput(value)
+                      }}
                       onMax={handleMaxInput}
-                      fiatValue={fiatValueInput ?? undefined}
+                      fiatValue={undefined}
                       onCurrencySelect={handleInputSelect}
                       otherCurrency={currencies[Field.OUTPUT]}
                       showCommonBases={true}
@@ -613,36 +710,22 @@ export default function Swap({ className }: { className?: string }) {
                     />
                   </Trace>
                 </SwapSection>
-                <ArrowWrapper clickable={isSupportedChain(chainId)}>
-                  <TraceEvent
-                    events={[BrowserEvent.onClick]}
-                    name={SwapEventName.SWAP_TOKENS_REVERSED}
-                    element={InterfaceElementName.SWAP_TOKENS_REVERSE_ARROW_BUTTON}
-                  >
-                    <ArrowContainer
-                      onClick={() => {
-                        setApprovalSubmitted(false) // reset 2 step UI for approvals
-                        onSwitchTokens()
-                      }}
-                      color={theme.textPrimary}
-                    >
-                      <ArrowDown
-                        size="16"
-                        color={
-                          currencies[Field.INPUT] && currencies[Field.OUTPUT] ? theme.textPrimary : theme.textTertiary
-                        }
-                      />
-                    </ArrowContainer>
-                  </TraceEvent>
-                </ArrowWrapper>
               </div>
               <AutoColumn gap="md">
                 <div>
                   <OutputSwapSection showDetailsDropdown={showDetailsDropdown}>
                     <Trace section={InterfaceSectionName.CURRENCY_OUTPUT_PANEL}>
                       <SwapCurrencyInputPanel
-                        value={formattedAmounts[Field.OUTPUT]}
-                        onUserInput={handleTypeOutput}
+                        value={
+                          currencies.OUTPUT?.symbol == 'DAI' && currencies.INPUT?.symbol == 'WETH'
+                            ? parseFloat(ethers.utils.formatEther(simulatedTxnOutputs[0])).toFixed(2).toString()
+                            : currencies.INPUT?.symbol == 'DAI' && currencies.OUTPUT?.symbol == 'WETH'
+                            ? parseFloat(ethers.utils.formatEther(simulatedTxnOutputs[1])).toFixed(2).toString()
+                            : '0.00'
+                        }
+                        onUserInput={(value) => {
+                          return
+                        }}
                         label={
                           independentField === Field.INPUT && !showWrap ? (
                             <Trans>To (at least)</Trans>
@@ -652,7 +735,7 @@ export default function Swap({ className }: { className?: string }) {
                         }
                         showMaxButton={false}
                         hideBalance={false}
-                        fiatValue={fiatValueOutput ?? undefined}
+                        fiatValue={undefined}
                         priceImpact={stablecoinPriceImpact}
                         currency={currencies[Field.OUTPUT] ?? null}
                         onCurrencySelect={handleOutputSelect}
@@ -660,6 +743,7 @@ export default function Swap({ className }: { className?: string }) {
                         showCommonBases={true}
                         id={InterfaceSectionName.CURRENCY_OUTPUT_PANEL}
                         loading={independentField === Field.INPUT && routeIsSyncing}
+                        isInputAllowed={false}
                       />
                     </Trace>
 
@@ -677,16 +761,22 @@ export default function Swap({ className }: { className?: string }) {
                       </>
                     ) : null}
                   </OutputSwapSection>
-                  {showDetailsDropdown && (
-                    <DetailsSwapSection>
-                      <SwapDetailsDropdown
-                        trade={trade}
-                        syncing={routeIsSyncing}
-                        loading={routeIsLoading}
-                        allowedSlippage={allowedSlippage}
-                      />
-                    </DetailsSwapSection>
-                  )}
+                  <DetailsSwapSection>
+                    {currencies.INPUT &&
+                      currencies.OUTPUT &&
+                      ((currencies.INPUT?.symbol == 'DAI' && currencies.OUTPUT?.symbol == 'WETH') ||
+                        (currencies.OUTPUT?.symbol == 'DAI' && currencies.INPUT?.symbol == 'WETH')) && (
+                        <SwapDetailsDropdown
+                          currencyIn={currencies.INPUT}
+                          currencyOut={currencies.OUTPUT}
+                          routes={routes}
+                          trade={trade}
+                          syncing={routeIsSyncing}
+                          loading={routeIsLoading}
+                          allowedSlippage={allowedSlippage}
+                        />
+                      )}
+                  </DetailsSwapSection>
                 </div>
                 {showPriceImpactWarning && <PriceImpactWarning priceImpact={largerPriceImpact} />}
                 <div>
@@ -711,7 +801,9 @@ export default function Swap({ className }: { className?: string }) {
                         <Trans>Unwrap</Trans>
                       ) : null}
                     </ButtonPrimary>
-                  ) : routeNotFound && userHasSpecifiedInputOutput && !routeIsLoading && !routeIsSyncing ? (
+                  ) : // eslint-disable-next-line no-constant-condition
+                  false ? (
+                    // routeNotFound && userHasSpecifiedInputOutput && !routeIsLoading && !routeIsSyncing ? (
                     <GrayCard style={{ textAlign: 'center' }}>
                       <ThemedText.DeprecatedMain mb="4px">
                         <Trans>Insufficient liquidity for this trade.</Trans>
@@ -763,29 +855,22 @@ export default function Swap({ className }: { className?: string }) {
                           </AutoRow>
                         </ButtonConfirmed>
                         <ButtonError
-                          onClick={() => {
+                          onClick={async () => {
                             if (isExpertMode) {
                               handleSwap()
                             } else {
-                              setSwapState({
-                                tradeToConfirm: trade,
-                                attemptingTxn: false,
-                                swapErrorMessage: undefined,
-                                showConfirm: true,
-                                txHash: undefined,
-                              })
+                              await soloPoolContract?.swapExactInput(
+                                0,
+                                ethers.utils.parseEther(formattedAmounts[Field.INPUT]).toString(),
+                                {
+                                  gasLimit: '1000000',
+                                }
+                              )
                             }
                           }}
                           width="100%"
                           id="swap-button"
-                          disabled={
-                            !isValid ||
-                            routeIsSyncing ||
-                            routeIsLoading ||
-                            (approvalState !== ApprovalState.APPROVED &&
-                              signatureState !== UseERC20PermitState.SIGNED) ||
-                            priceImpactTooHigh
-                          }
+                          disabled={false}
                           error={isValid && priceImpactSeverity > 2}
                         >
                           <Text fontSize={16} fontWeight={600}>
@@ -794,15 +879,15 @@ export default function Swap({ className }: { className?: string }) {
                             ) : trade && priceImpactSeverity > 2 ? (
                               <Trans>Swap Anyway</Trans>
                             ) : (
-                              <Trans>Swap</Trans>
+                              <Trans>Confirm Swap</Trans>
                             )}
                           </Text>
                         </ButtonError>
                       </AutoColumn>
                     </AutoRow>
-                  ) : isValid && allowance.state === AllowanceState.REQUIRED ? (
+                  ) : !isApproved ? (
                     <ButtonPrimary
-                      onClick={updateAllowance}
+                      onClick={handleApprove}
                       disabled={isAllowancePending || isApprovalLoading}
                       style={{ gap: 14 }}
                     >
@@ -822,8 +907,8 @@ export default function Swap({ className }: { className?: string }) {
                             <MouseoverTooltip
                               text={
                                 <Trans>
-                                  Permission is required for Uniswap to swap each token. This will expire after one
-                                  month for your security.
+                                  Permission is required for Solo to swap each token. This will expire after one month
+                                  for your security.
                                 </Trans>
                               }
                             >
@@ -836,27 +921,9 @@ export default function Swap({ className }: { className?: string }) {
                     </ButtonPrimary>
                   ) : (
                     <ButtonError
-                      onClick={() => {
-                        if (isExpertMode) {
-                          handleSwap()
-                        } else {
-                          setSwapState({
-                            tradeToConfirm: trade,
-                            attemptingTxn: false,
-                            swapErrorMessage: undefined,
-                            showConfirm: true,
-                            txHash: undefined,
-                          })
-                        }
-                      }}
+                      onClick={handleSwap}
                       id="swap-button"
-                      disabled={
-                        !isValid ||
-                        routeIsSyncing ||
-                        routeIsLoading ||
-                        priceImpactTooHigh ||
-                        (permit2Enabled ? allowance.state !== AllowanceState.ALLOWED : Boolean(swapCallbackError))
-                      }
+                      disabled={false}
                       error={
                         isValid &&
                         priceImpactSeverity > 2 &&
@@ -866,14 +933,12 @@ export default function Swap({ className }: { className?: string }) {
                       <Text fontSize={20} fontWeight={600}>
                         {swapInputError ? (
                           swapInputError
-                        ) : routeIsSyncing || routeIsLoading ? (
-                          <Trans>Swap</Trans>
                         ) : priceImpactTooHigh ? (
                           <Trans>Price Impact Too High</Trans>
                         ) : priceImpactSeverity > 2 ? (
                           <Trans>Swap Anyway</Trans>
                         ) : (
-                          <Trans>Swap</Trans>
+                          <Trans>Confirm Swap</Trans>
                         )}
                       </Text>
                     </ButtonError>
@@ -883,15 +948,16 @@ export default function Swap({ className }: { className?: string }) {
               </AutoColumn>
             </SwapWrapper>
           )}
-          {/* <NetworkAlert /> */}
+          <Modal isOpen={isTxnComplete} $scrollOverlay={true} onDismiss={handleConfirmDismiss} maxHeight={90}>
+            <TransactionSubmittedContent
+              chainId={80001}
+              hash={txnHash}
+              onDismiss={handleConfirmDismiss}
+              currencyToAdd={currencies[Field.OUTPUT] ?? undefined}
+            />
+          </Modal>
         </PageWrapper>
         <SwitchLocaleLink />
-        {/* {!swapIsUnsupported ? null : (
-          <UnsupportedCurrencyFooter
-            show={swapIsUnsupported}
-            currencies={[currencies[Field.INPUT], currencies[Field.OUTPUT]]}
-          />
-        )} */}
       </>
     </Trace>
   )

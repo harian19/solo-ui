@@ -3,8 +3,7 @@ import { Percent } from '@uniswap/sdk-core'
 import styled from 'styled-components/macro'
 
 import { ThemedText } from '../../theme'
-import { RowBetween, RowFixed } from '../Row'
-import SettingsTab from '../Settings'
+import { RowBetween } from '../Row'
 
 const StyledSwapHeader = styled.div`
   padding: 8px 12px;
@@ -17,14 +16,13 @@ export default function SwapHeader({ allowedSlippage }: { allowedSlippage: Perce
   return (
     <StyledSwapHeader>
       <RowBetween>
-        <RowFixed>
-          <ThemedText.DeprecatedBlack fontWeight={500} fontSize={16} style={{ marginRight: '8px' }}>
-            <Trans>Swap</Trans>
-          </ThemedText.DeprecatedBlack>
-        </RowFixed>
-        <RowFixed>
-          <SettingsTab placeholderSlippage={allowedSlippage} />
-        </RowFixed>
+        <ThemedText.DeprecatedBlack
+          fontWeight={500}
+          fontSize={16}
+          style={{ marginRight: '8px', textAlign: 'center', minWidth: '100%' }}
+        >
+          <Trans>Swap</Trans>
+        </ThemedText.DeprecatedBlack>
       </RowBetween>
     </StyledSwapHeader>
   )

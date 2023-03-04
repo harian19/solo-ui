@@ -6,7 +6,7 @@ import Badge from 'components/Badge'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import CurrencyLogo from 'components/Logo/CurrencyLogo'
 import Row, { AutoRow } from 'components/Row'
-import { RoutingDiagramEntry } from 'components/swap/SwapRoute'
+import { SoloProtocol, SoloRoutingDiagramEntry } from 'components/swap/SwapRoute'
 import { useTokenInfoFromActiveList } from 'hooks/useTokenInfoFromActiveList'
 import { Box } from 'rebass'
 import styled from 'styled-components/macro'
@@ -90,7 +90,7 @@ export default function RoutingDiagram({
 }: {
   currencyIn: Currency
   currencyOut: Currency
-  routes: RoutingDiagramEntry[]
+  routes: SoloRoutingDiagramEntry[]
 }) {
   const tokenIn = useTokenInfoFromActiveList(currencyIn)
   const tokenOut = useTokenInfoFromActiveList(currencyOut)
@@ -108,7 +108,7 @@ export default function RoutingDiagram({
   )
 }
 
-function Route({ entry: { percent, path, protocol } }: { entry: RoutingDiagramEntry }) {
+function Route({ entry: { percent, path, protocol } }: { entry: SoloRoutingDiagramEntry }) {
   return (
     <RouteRow>
       <DottedLine>
@@ -121,36 +121,44 @@ function Route({ entry: { percent, path, protocol } }: { entry: RoutingDiagramEn
           </MixedProtocolBadge>
         ) : (
           <ProtocolBadge>
-            <BadgeText fontSize={12}>{protocol.toUpperCase()}</BadgeText>
+            <BadgeText fontSize={12}>SOLO</BadgeText>
           </ProtocolBadge>
         )}
         <BadgeText fontSize={14} style={{ minWidth: 'auto' }}>
-          {percent.toSignificant(2)}%
+          {percent.toPrecision(3)}%
         </BadgeText>
       </OpaqueBadge>
       <AutoRow gap="1px" width="100%" style={{ justifyContent: 'space-evenly', zIndex: 2 }}>
         {path.map(([currency0, currency1, feeAmount], index) => (
-          <Pool key={index} currency0={currency0} currency1={currency1} feeAmount={feeAmount} />
+          <Pool key={index} currency0={currency0} currency1={currency1} feeAmount={feeAmount} protocol={protocol} />
         ))}
       </AutoRow>
     </RouteRow>
   )
 }
 
-function Pool({ currency0, currency1, feeAmount }: { currency0: Currency; currency1: Currency; feeAmount: FeeAmount }) {
+function Pool({
+  currency0,
+  currency1,
+  feeAmount,
+  protocol,
+}: {
+  currency0: Currency
+  currency1: Currency
+  feeAmount: FeeAmount
+  protocol: Protocol | SoloProtocol
+}) {
   const tokenInfo0 = useTokenInfoFromActiveList(currency0)
   const tokenInfo1 = useTokenInfoFromActiveList(currency1)
 
   // TODO - link pool icon to info.uniswap.org via query params
   return (
-    <MouseoverTooltip
-      text={<Trans>{tokenInfo0?.symbol + '/' + tokenInfo1?.symbol + ' ' + feeAmount / 10000}% pool</Trans>}
-    >
+    <MouseoverTooltip text={<Trans>{tokenInfo0?.symbol + '/' + tokenInfo1?.symbol} pool</Trans>}>
       <PoolBadge>
         <Box margin="0 4px 0 12px">
           <DoubleCurrencyLogo currency0={tokenInfo1} currency1={tokenInfo0} size={20} />
         </Box>
-        <ThemedText.DeprecatedSmall fontSize={14}>{feeAmount / 10000}%</ThemedText.DeprecatedSmall>
+        <ThemedText.DeprecatedSmall fontSize={14}>{protocol}</ThemedText.DeprecatedSmall>
       </PoolBadge>
     </MouseoverTooltip>
   )

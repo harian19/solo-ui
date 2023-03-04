@@ -1,28 +1,18 @@
-import { Trans } from '@lingui/macro'
 import { TraceEvent } from '@uniswap/analytics'
 import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/analytics-events'
 import { Currency, Percent, TradeType } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import AnimatedDropdown from 'components/AnimatedDropdown'
-import Card, { OutlineCard } from 'components/Card'
+import { OutlineCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
-import { LoadingOpacityContainer } from 'components/Loader/styled'
+import RoutingDiagram from 'components/RoutingDiagram/RoutingDiagram'
 import Row, { RowBetween, RowFixed } from 'components/Row'
-import Toggle from 'components/Toggle'
-import { MouseoverTooltipContent } from 'components/Tooltip'
-import { SUPPORTED_GAS_ESTIMATE_CHAIN_IDS } from 'constants/chains'
 import { useState } from 'react'
 import { ChevronDown, Info } from 'react-feather'
 import { InterfaceTrade } from 'state/routing/types'
 import styled, { keyframes, useTheme } from 'styled-components/macro'
-import { HideSmall, ThemedText } from 'theme'
 
-import QuestionHelper from '../QuestionHelper'
-import { AdvancedSwapDetails } from './AdvancedSwapDetails'
-import GasEstimateBadge from './GasEstimateBadge'
-import { ResponsiveTooltipContainer } from './styleds'
-import SwapRoute from './SwapRoute'
-import TradePrice from './TradePrice'
+import { SoloRoutingDiagramEntry } from './SwapRoute'
 
 const Wrapper = styled(Row)`
   width: 100%;
@@ -113,9 +103,20 @@ interface SwapDetailsInlineProps {
   syncing: boolean
   loading: boolean
   allowedSlippage: Percent
+  currencyIn: Currency
+  currencyOut: Currency
+  routes: SoloRoutingDiagramEntry[]
 }
 
-export default function SwapDetailsDropdown({ trade, syncing, loading, allowedSlippage }: SwapDetailsInlineProps) {
+export default function SwapDetailsDropdown({
+  trade,
+  syncing,
+  loading,
+  allowedSlippage,
+  currencyIn,
+  currencyOut,
+  routes,
+}: SwapDetailsInlineProps) {
   const theme = useTheme()
   const { chainId } = useWeb3React()
   const [showDetails, setShowDetails] = useState(false)
@@ -124,7 +125,7 @@ export default function SwapDetailsDropdown({ trade, syncing, loading, allowedSl
   return (
     <Wrapper style={{ marginTop: '0' }}>
       <AutoColumn gap="sm" style={{ width: '100%', marginBottom: '-8px' }}>
-        <RowBetween>
+        {/* <RowBetween>
           <RowFixed>
             <ThemedText.DeprecatedBlack fontWeight={400} fontSize={14} color={theme.textSecondary}>
               <Trans>{showSoloDetails ? 'Show UniV3 Trades' : 'Show Solo Trades'}</Trans>
@@ -143,7 +144,7 @@ export default function SwapDetailsDropdown({ trade, syncing, loading, allowedSl
                   }
             }
           />
-        </RowBetween>
+        </RowBetween> */}
         <TraceEvent
           events={[BrowserEvent.onClick]}
           name={SwapEventName.SWAP_DETAILS_EXPANDED}
@@ -151,7 +152,7 @@ export default function SwapDetailsDropdown({ trade, syncing, loading, allowedSl
           shouldLogImpression={!showDetails}
         >
           <StyledHeaderRow onClick={() => setShowDetails(!showDetails)} disabled={!trade} open={showDetails}>
-            <RowFixed style={{ position: 'relative' }}>
+            {/* <RowFixed style={{ position: 'relative' }}>
               {loading || syncing ? (
                 <StyledPolling>
                   <StyledPollingDot>
@@ -190,9 +191,9 @@ export default function SwapDetailsDropdown({ trade, syncing, loading, allowedSl
                   <Trans>Fetching best price...</Trans>
                 </ThemedText.DeprecatedMain>
               ) : null}
-            </RowFixed>
+            </RowFixed> */}
             <RowFixed>
-              {!trade?.gasUseEstimateUSD ||
+              {/* {!trade?.gasUseEstimateUSD ||
               showDetails ||
               !chainId ||
               !SUPPORTED_GAS_ESTIMATE_CHAIN_IDS.includes(chainId) ? null : (
@@ -202,7 +203,8 @@ export default function SwapDetailsDropdown({ trade, syncing, loading, allowedSl
                   showRoute={!showDetails}
                   disableHover={showDetails}
                 />
-              )}
+              )} */}
+              Trade Details
               <RotatingArrow
                 stroke={trade ? theme.textTertiary : theme.deprecated_bg3}
                 open={Boolean(trade && showDetails)}
@@ -212,12 +214,27 @@ export default function SwapDetailsDropdown({ trade, syncing, loading, allowedSl
         </TraceEvent>
         <AnimatedDropdown open={showDetails}>
           <AutoColumn gap="sm" style={{ padding: '0', paddingBottom: '8px' }}>
-            {trade ? (
+            {/* {trade ? (
               <StyledCard>
                 <AdvancedSwapDetails trade={trade} allowedSlippage={allowedSlippage} syncing={syncing} />
               </StyledCard>
-            ) : null}
-            {trade ? <SwapRoute trade={trade} syncing={syncing} /> : null}
+            ) : null} */}
+            {/* <SwapRoute trade={trade} syncing={syncing} /> */}
+            {routes.length === 0 ? (
+              <StyledPolling>
+                <StyledPollingDot>
+                  <Spinner />
+                </StyledPollingDot>
+              </StyledPolling>
+            ) : isNaN(routes[0].percent) ? (
+              <StyledPolling>
+                <StyledPollingDot>
+                  <Spinner />
+                </StyledPollingDot>
+              </StyledPolling>
+            ) : (
+              <RoutingDiagram currencyIn={currencyIn} currencyOut={currencyOut} routes={routes} />
+            )}
           </AutoColumn>
         </AnimatedDropdown>
       </AutoColumn>

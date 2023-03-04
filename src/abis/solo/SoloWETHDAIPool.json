@@ -1,0 +1,551 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "uv3PoolFactory_",
+        "type": "address"
+      },
+      { "internalType": "address", "name": "tokenA_", "type": "address" },
+      { "internalType": "address", "name": "tokenB_", "type": "address" },
+      { "internalType": "bool", "name": "tokenAIsDeposit_", "type": "bool" },
+      { "internalType": "uint256", "name": "fee_", "type": "uint256" },
+      { "internalType": "string", "name": "lpName", "type": "string" },
+      { "internalType": "string", "name": "lpSymbol", "type": "string" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "x", "type": "uint256" },
+      { "internalType": "uint256", "name": "y", "type": "uint256" }
+    ],
+    "name": "PRBMath_MulDiv18_Overflow",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "x", "type": "uint256" },
+      { "internalType": "uint256", "name": "y", "type": "uint256" },
+      { "internalType": "uint256", "name": "denominator", "type": "uint256" }
+    ],
+    "name": "PRBMath_MulDiv_Overflow",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "Approval",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
+    ],
+    "name": "Initialized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "Transfer",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "owner", "type": "address" },
+      { "internalType": "address", "name": "spender", "type": "address" }
+    ],
+    "name": "allowance",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "spender", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "approve",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "bMin",
+    "outputs": [{ "internalType": "UD60x18", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "account", "type": "address" }
+    ],
+    "name": "balanceOf",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "price", "type": "uint256" }
+    ],
+    "name": "capitalAsQuoteTokens",
+    "outputs": [
+      { "internalType": "uint256", "name": "value", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "concentratedPosition",
+    "outputs": [
+      { "internalType": "uint256", "name": "amount0", "type": "uint256" },
+      { "internalType": "uint256", "name": "amount1", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "currentTick",
+    "outputs": [{ "internalType": "int24", "name": "tick", "type": "int24" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "dPct",
+    "outputs": [{ "internalType": "UD60x18", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "decimals",
+    "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "spender", "type": "address" },
+      {
+        "internalType": "uint256",
+        "name": "subtractedValue",
+        "type": "uint256"
+      }
+    ],
+    "name": "decreaseAllowance",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "amountDeposit", "type": "uint256" },
+      { "internalType": "address", "name": "to", "type": "address" }
+    ],
+    "name": "deposit",
+    "outputs": [
+      { "internalType": "uint256", "name": "lpTokens", "type": "uint256" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "depositToken",
+    "outputs": [
+      { "internalType": "address", "name": "token", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "fPct",
+    "outputs": [{ "internalType": "UD60x18", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "fee",
+    "outputs": [{ "internalType": "UD60x18", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "amountDeposit", "type": "uint256" },
+      { "internalType": "uint256", "name": "amountQuote", "type": "uint256" },
+      { "internalType": "int24", "name": "ticksRange", "type": "int24" },
+      { "internalType": "uint256", "name": "price", "type": "uint256" }
+    ],
+    "name": "firstDeposit",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "flexPosition",
+    "outputs": [
+      { "internalType": "uint256", "name": "amountDeposit", "type": "uint256" },
+      { "internalType": "uint256", "name": "amountQuote", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getContext",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "UD60x18", "name": "cX", "type": "uint256" },
+          { "internalType": "UD60x18", "name": "cY", "type": "uint256" },
+          { "internalType": "UD60x18", "name": "fX", "type": "uint256" },
+          { "internalType": "UD60x18", "name": "fY", "type": "uint256" },
+          { "internalType": "UD60x18", "name": "sqrtP", "type": "uint256" },
+          { "internalType": "SD59x18", "name": "tC", "type": "int256" }
+        ],
+        "internalType": "struct SoloMath.SoloContext",
+        "name": "context",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "spender", "type": "address" },
+      { "internalType": "uint256", "name": "addedValue", "type": "uint256" }
+    ],
+    "name": "increaseAllowance",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "UD60x18", "name": "bMin_", "type": "uint256" },
+      { "internalType": "SD59x18", "name": "tPct_", "type": "int256" },
+      { "internalType": "UD60x18", "name": "s_", "type": "uint256" },
+      { "internalType": "UD60x18", "name": "dPct_", "type": "uint256" },
+      { "internalType": "UD60x18", "name": "fPct_", "type": "uint256" },
+      { "internalType": "UD60x18", "name": "rPct_", "type": "uint256" }
+    ],
+    "name": "init",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "lookupContext",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "UD60x18", "name": "cX", "type": "uint256" },
+          { "internalType": "UD60x18", "name": "cY", "type": "uint256" },
+          { "internalType": "UD60x18", "name": "fX", "type": "uint256" },
+          { "internalType": "UD60x18", "name": "fY", "type": "uint256" },
+          { "internalType": "UD60x18", "name": "sqrtP", "type": "uint256" },
+          { "internalType": "SD59x18", "name": "tC", "type": "int256" }
+        ],
+        "internalType": "struct SoloMath.SoloContext",
+        "name": "ctx",
+        "type": "tuple"
+      },
+      { "internalType": "uint256", "name": "spot_", "type": "uint256" },
+      { "internalType": "int24", "name": "cTick_", "type": "int24" },
+      { "internalType": "int24", "name": "tickMin", "type": "int24" },
+      { "internalType": "int24", "name": "tickMax", "type": "int24" },
+      { "internalType": "uint160", "name": "sMin", "type": "uint160" },
+      { "internalType": "uint160", "name": "sMax", "type": "uint160" },
+      { "internalType": "uint128", "name": "liquidity", "type": "uint128" },
+      { "internalType": "uint256", "name": "t0", "type": "uint256" },
+      { "internalType": "uint256", "name": "t1", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "lookupState",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "UD60x18", "name": "x", "type": "uint256" },
+          { "internalType": "UD60x18", "name": "y", "type": "uint256" },
+          { "internalType": "SD59x18", "name": "tMax", "type": "int256" },
+          { "internalType": "SD59x18", "name": "tMin", "type": "int256" },
+          { "internalType": "UD60x18", "name": "pf", "type": "uint256" },
+          { "internalType": "UD60x18", "name": "sqrtPMin", "type": "uint256" },
+          { "internalType": "UD60x18", "name": "sqrtPMax", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "protected0",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "protected1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct SoloMath.SoloState",
+        "name": "app_",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "name",
+    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "pool",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "protectedPosition",
+    "outputs": [
+      { "internalType": "uint256", "name": "amount0", "type": "uint256" },
+      { "internalType": "uint256", "name": "amount1", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "quoteToken",
+    "outputs": [
+      { "internalType": "address", "name": "token", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "rPct",
+    "outputs": [{ "internalType": "UD60x18", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "s",
+    "outputs": [{ "internalType": "UD60x18", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "amount0", "type": "uint256" },
+      { "internalType": "uint256", "name": "amount1", "type": "uint256" }
+    ],
+    "name": "swapExactInput",
+    "outputs": [
+      { "internalType": "uint256", "name": "output0", "type": "uint256" },
+      { "internalType": "uint256", "name": "output1", "type": "uint256" },
+      { "internalType": "uint256", "name": "concentrated0", "type": "uint256" },
+      { "internalType": "uint256", "name": "concentrated1", "type": "uint256" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "tMax",
+    "outputs": [{ "internalType": "int24", "name": "tick", "type": "int24" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "tMin",
+    "outputs": [{ "internalType": "int24", "name": "tick", "type": "int24" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "tPct",
+    "outputs": [{ "internalType": "SD59x18", "name": "", "type": "int256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "token0",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "token0IsDeposit",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "token1",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalSupply",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "to", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "transfer",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "from", "type": "address" },
+      { "internalType": "address", "name": "to", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "transferFrom",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ts_",
+    "outputs": [
+      { "internalType": "UD60x18", "name": "px", "type": "uint256" },
+      { "internalType": "UD60x18", "name": "py", "type": "uint256" },
+      { "internalType": "int256", "name": "ix", "type": "int256" },
+      { "internalType": "int256", "name": "iy", "type": "int256" },
+      { "internalType": "int256", "name": "cTick", "type": "int256" },
+      { "internalType": "uint256", "name": "ux", "type": "uint256" },
+      { "internalType": "uint256", "name": "uy", "type": "uint256" },
+      { "internalType": "bool", "name": "xForY", "type": "bool" },
+      { "internalType": "bool", "name": "b2", "type": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "amount0", "type": "uint256" },
+      { "internalType": "uint256", "name": "amount1", "type": "uint256" },
+      { "internalType": "bytes", "name": "data", "type": "bytes" }
+    ],
+    "name": "uniswapV3MintCallback",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "int256", "name": "amount0Delta", "type": "int256" },
+      { "internalType": "int256", "name": "amount1Delta", "type": "int256" },
+      { "internalType": "bytes", "name": "data", "type": "bytes" }
+    ],
+    "name": "uniswapV3SwapCallback",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "lpAmount", "type": "uint256" },
+      { "internalType": "address", "name": "to", "type": "address" }
+    ],
+    "name": "withdraw",
+    "outputs": [
+      { "internalType": "uint256", "name": "amountDeposit", "type": "uint256" },
+      { "internalType": "uint256", "name": "amountQuote", "type": "uint256" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
