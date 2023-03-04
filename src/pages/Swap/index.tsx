@@ -334,9 +334,7 @@ export default function Swap({ className }: { className?: string }) {
   const daiContract = new ethers.Contract('0xB704143D415d6a3a9e851DA5e76B64a5D99d718b', WETH_ABI, signer)
 
   const soloPoolContract = new ethers.Contract('0xF2EEd1CB7c599f9191eCE6E30f1e8339d8a20155', SOLO_WETH_DAI_ABI, signer)
-  // const privateWallet = new ethers.Wallet('0xe185a5c33d4fd669b6dc0c8030ef4ebe728323c8ea3e1339bd5924e0159fccc2')
 
-  // const signerPrivate = provider?.getSigner('0xe185a5c33d4fd669b6dc0c8030ef4ebe728323c8ea3e1339bd5924e0159fccc2')
   const soloPoolContractStatic = new ethers.Contract(
     '0xF2EEd1CB7c599f9191eCE6E30f1e8339d8a20155',
     SOLO_WETH_DAI_ABI,
