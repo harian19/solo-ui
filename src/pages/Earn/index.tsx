@@ -6,7 +6,7 @@ import SOLO_WETH_DAI_ABI from 'abis/solo/SoloWETHDAIPool.json'
 import WETH_ABI from 'abis/solo/WETH_solo.json'
 import Badge from 'components/Badge'
 import { ButtonGray, ButtonPrimary } from 'components/Button'
-import { ButtonSecondary } from 'components/Button'
+import { ButtonConfirmed, ButtonSecondary } from 'components/Button'
 import { DarkCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import { FlyoutAlignment, Menu } from 'components/Menu'
@@ -230,10 +230,10 @@ export default function Pool() {
   const wethContract = new ethers.Contract('0xCC57bcE47D2d624668fe1A388758fD5D91065d33', WETH_ABI, signer)
   const daiContract = new ethers.Contract('0xB704143D415d6a3a9e851DA5e76B64a5D99d718b', WETH_ABI, signer)
 
-  const soloPoolContract = new ethers.Contract('0xF2EEd1CB7c599f9191eCE6E30f1e8339d8a20155', SOLO_WETH_DAI_ABI, signer)
+  const soloPoolContract = new ethers.Contract('0x2602ec23b476199e201257f04C260B4487D46Ab5', SOLO_WETH_DAI_ABI, signer)
 
   const soloPoolContractStatic = new ethers.Contract(
-    '0xF2EEd1CB7c599f9191eCE6E30f1e8339d8a20155',
+    '0x2602ec23b476199e201257f04C260B4487D46Ab5',
     SOLO_WETH_DAI_ABI,
     provider
   )
@@ -436,20 +436,20 @@ export default function Pool() {
                       <APRBadge>APR 14.2%</APRBadge>
                     </MouseoverTooltip>
                   </span>
-                  <ButtonSecondary
-                    as={Link}
+                  <ButtonConfirmed
+                    disabled={true}
                     style={{
                       borderRadius: '12px',
                       padding: '6px',
                       display: 'inline-block',
                       margin: '10px',
                       color: '#d6d5d6',
+                      fontSize: '16px',
                     }}
                     width="150px"
-                    to="/add/0xB704143D415d6a3a9e851DA5e76B64a5D99d718b"
                   >
                     Earn
-                  </ButtonSecondary>
+                  </ButtonConfirmed>
                 </div>
               </DarkCard>
               <DarkCard style={{ padding: '0.6rem' }} key="DAI">
@@ -477,20 +477,20 @@ export default function Pool() {
                       <APRBadge>APR 12.7%</APRBadge>
                     </MouseoverTooltip>
                   </span>
-                  <ButtonSecondary
-                    as={Link}
+                  <ButtonConfirmed
                     style={{
                       borderRadius: '12px',
                       padding: '6px',
                       display: 'inline-block',
                       margin: '10px',
                       color: '#d6d5d6',
+                      fontSize: '16px',
                     }}
                     width="150px"
-                    to="/add/0xB704143D415d6a3a9e851DA5e76B64a5D99d718b"
+                    disabled
                   >
                     Earn
-                  </ButtonSecondary>
+                  </ButtonConfirmed>
                 </div>
               </DarkCard>
             </MainContentWrapper>

@@ -110,16 +110,18 @@ const Card = ({
   backgroundImgSrc,
   icon,
   elementName,
+  onClick,
 }: {
   type?: CardType
   title: string
   description: string
   cta?: string
-  to: string
+  to?: string
   external?: boolean
   backgroundImgSrc?: string
   icon?: React.ReactNode
   elementName?: string
+  onClick?: () => void
 }) => {
   const isDarkMode = useIsDarkMode()
   return (
@@ -140,7 +142,9 @@ const Card = ({
         </TitleRow>
         <CardDescription type={type}>
           {description}
-          <CardCTA type={type}>{cta}</CardCTA>
+          <CardCTA onClick={onClick} type={type}>
+            {cta}
+          </CardCTA>
         </CardDescription>
       </StyledCard>
     </TraceEvent>

@@ -1,20 +1,39 @@
-import { Trace, TraceEvent } from '@uniswap/analytics'
-import { BrowserEvent, InterfaceElementName, InterfacePageName, SharedEventName } from '@uniswap/analytics-events'
+import { Trace } from '@uniswap/analytics'
+import { InterfacePageName } from '@uniswap/analytics-events'
+/* eslint-disable import/no-unused-modules */
+import { InterfaceElementName } from '@uniswap/analytics-events'
+import { useWeb3React } from '@web3-react/core'
+import WETH_ABI from 'abis/solo/WETH_solo.json'
+import Card, { CardType } from 'components/About/Card'
+import darkArrowImgSrc from 'components/About/images/aboutArrowDark.png'
+import lightArrowImgSrc from 'components/About/images/aboutArrowLight.png'
+import darkDollarImgSrc from 'components/About/images/aboutDollarDark.png'
+import darkTerminalImgSrc from 'components/About/images/aboutTerminalDark.png'
 import { BaseButton } from 'components/Button'
-import { useSwapWidgetEnabled } from 'featureFlags/flags/swapWidget'
+import { RowBetween } from 'components/Row'
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
+import { ethers } from 'ethers'
 import Swap from 'pages/Swap'
 import { parse } from 'qs'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowDownCircle } from 'react-feather'
+import { DollarSign, Terminal } from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Link as NativeLink } from 'react-router-dom'
 import { useAppSelector } from 'state/hooks'
 import { useIsDarkMode } from 'state/user/hooks'
 import styled, { css } from 'styled-components/macro'
+import { ThemedText } from 'theme'
 import { BREAKPOINTS } from 'theme'
+import { lightTheme } from 'theme/colors'
 import { Z_INDEX } from 'theme/zIndex'
 
-import soloDarkLogoWithCaption from '../../assets/solo/solo-dark-logo-with-liq-caption.jpg'
+const StyledCardLogo = styled.img`
+  min-width: 20px;
+  min-height: 20px;
+  max-height: 48px;
+  max-width: 48px;
+`
 
 const PageContainer = styled.div<{ isDarkMode: boolean }>`
   position: absolute;
@@ -31,6 +50,15 @@ const PageContainer = styled.div<{ isDarkMode: boolean }>`
     isDarkMode ? '#141414' : 'linear-gradient(rgba(255, 255, 255, 0) 0%, rgb(255 255 255 /100%) 45%)'};
 `
 
+const TitleRow = styled(RowBetween)`
+  color: ${({ theme }) => theme.textSecondary};
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 100%;
+  `};
+`
+
 const Gradient = styled.div<{ isDarkMode: boolean }>`
   position: absolute;
   display: flex;
@@ -41,8 +69,9 @@ const Gradient = styled.div<{ isDarkMode: boolean }>`
   width: 100%;
   min-height: 550px;
   background: ${({ isDarkMode }) =>
-    isDarkMode ? '#141414' : 'linear-gradient(rgba(255, 255, 255, 0) 0%, rgb(255 255 255 /100%) 45%)'};
-  opacity: 0.65
+    isDarkMode
+      ? 'linear-gradient(rgba(8, 10, 24, 0) 0%, rgb(8 10 24 / 100%) 45%)'
+      : 'linear-gradient(rgba(255, 255, 255, 0) 0%, rgb(255 255 255 /100%) 45%)'};
   z-index: ${Z_INDEX.under_dropdown};
   pointer-events: none;
   height: ${({ theme }) => `calc(100vh - ${theme.mobileBottomBarHeight}px)`};
@@ -70,6 +99,7 @@ const Glow = styled.div`
   position: absolute;
   top: 68px;
   bottom: 0;
+  background: radial-gradient(72.04% 72.04% at 50% 3.99%, #ff37eb 0%, rgba(166, 151, 255, 0) 100%);
   filter: blur(72px);
   border-radius: 24px;
   max-width: 480px;
@@ -77,13 +107,6 @@ const Glow = styled.div`
   height: 100%;
 `
 
-const Branding = styled.img`
-  padding-top: 100px;
-  display: flex;
-  justify-content: center;
-  height: 100%;
-  cursor: pointer;
-`
 const ContentContainer = styled.div<{ isDarkMode: boolean }>`
   position: absolute;
   display: flex;
@@ -91,8 +114,9 @@ const ContentContainer = styled.div<{ isDarkMode: boolean }>`
   align-items: center;
   justify-content: flex-end;
   width: 100%;
+  padding: 0 0 40px;
   max-width: min(720px, 90%);
-  min-height: 400px;
+  min-height: 500px;
   z-index: ${Z_INDEX.under_dropdown};
   transition: ${({ theme }) => `${theme.transition.duration.medium} ${theme.transition.timing.ease} opacity`};
   height: ${({ theme }) => `calc(100vh - ${theme.navHeight + theme.mobileBottomBarHeight}px)`};
@@ -127,7 +151,7 @@ const TitleText = styled.h1<{ isDarkMode: boolean }>`
   }
 `
 
-const SubText = styled.h3`
+const SubText = styled.div`
   color: ${({ theme }) => theme.textSecondary};
   font-size: 16px;
   line-height: 24px;
@@ -213,9 +237,7 @@ const AboutContentContainer = styled.div<{ isDarkMode: boolean }>`
   padding: 0 24px 5rem;
   width: 100%;
   background: ${({ isDarkMode }) =>
-    isDarkMode
-      ? 'linear-gradient(179.82deg, rgba(0, 0, 0, 0) 0.16%, #050026 99.85%)'
-      : 'linear-gradient(179.82deg, rgba(255, 255, 255, 0) 0.16%, #eaeaea 99.85%)'};
+    isDarkMode ? '#141414' : 'linear-gradient(179.82deg, rgba(255, 255, 255, 0) 0.16%, #eaeaea 99.85%)'};
   @media screen and (min-width: ${BREAKPOINTS.md}px) {
     padding: 0 96px 5rem;
   }
@@ -291,7 +313,7 @@ const WidgetLandingLink = styled(NativeLink)`
   ${SwapCss}
 `
 
-export default function Landing() {
+export default function Demo() {
   const isDarkMode = useIsDarkMode()
 
   const cardsRef = useRef<HTMLDivElement>(null)
@@ -304,7 +326,60 @@ export default function Landing() {
     ignoreQueryPrefix: true,
   })
 
-  const swapWidgetEnabled = useSwapWidgetEnabled()
+  const { account, provider } = useWeb3React()
+  const signer = provider?.getSigner()
+  const wethContract = new ethers.Contract('0xCC57bcE47D2d624668fe1A388758fD5D91065d33', WETH_ABI, signer)
+  const daiContract = new ethers.Contract('0xB704143D415d6a3a9e851DA5e76B64a5D99d718b', WETH_ABI, signer)
+
+  const handleFaucetCall = useCallback(() => {
+    try {
+      wethContract.mint(signer?.getAddress(), ethers.utils.parseEther('0.5'))
+      daiContract.mint(signer?.getAddress(), ethers.utils.parseEther('500'))
+    } catch (e) {
+      console.error(e)
+    }
+  }, [daiContract, signer, wethContract])
+
+  const MORE_CARDS = [
+    {
+      to: 'https://www.alchemy.com/overviews/mumbai-testnet#how-to-get-started-using-the-mumbai-testnet',
+      external: true,
+      title: '1. Connect Wallet',
+      description: 'Connect your wallet to our Dapp on Mumbai testnet ',
+      lightIcon: <Terminal color={lightTheme.textTertiary} size={48} />,
+      darkIcon: <StyledCardLogo src={darkTerminalImgSrc} alt="Developers" />,
+      cta: 'Instructions',
+      elementName: InterfaceElementName.ABOUT_PAGE_DEV_DOCS_CARD,
+    },
+    {
+      onClick: handleFaucetCall,
+      external: true,
+      title: '2. Get tokens',
+      description: 'Use our faucet to load your wallet with tokens.',
+      lightIcon: <DollarSign color={lightTheme.textTertiary} size={48} />,
+      darkIcon: <StyledCardLogo src={darkDollarImgSrc} alt="Earn" />,
+      cta: 'Get WETH & DAI',
+      elementName: InterfaceElementName.ABOUT_PAGE_BUY_CRYPTO_CARD,
+    },
+    {
+      to: '/earn',
+      title: '3. Earn',
+      description: 'Provide liquidity on Solo and earn.',
+      lightIcon: <StyledCardLogo src={lightArrowImgSrc} alt="Analytics" />,
+      darkIcon: <StyledCardLogo src={darkDollarImgSrc} alt="Analytics" />,
+      cta: 'Provide liquidity',
+      elementName: InterfaceElementName.ABOUT_PAGE_EARN_CARD,
+    },
+    {
+      to: '/swap',
+      title: '4. Swap',
+      description: 'Trade on Solo and swap tokens.',
+      lightIcon: <StyledCardLogo src={lightArrowImgSrc} alt="Analytics" />,
+      darkIcon: <StyledCardLogo src={darkArrowImgSrc} alt="Analytics" />,
+      cta: 'Swap',
+      elementName: InterfaceElementName.ABOUT_PAGE_EARN_CARD,
+    },
+  ]
 
   // This can be simplified significantly once the flag is removed! For now being explicit is clearer.
   useEffect(() => {
@@ -319,33 +394,24 @@ export default function Landing() {
     <Trace page={InterfacePageName.LANDING_PAGE} shouldLogImpression>
       {showContent && (
         <PageContainer isDarkMode={isDarkMode} data-testid="landing-page">
-          <LandingSwapContainer></LandingSwapContainer>
-          <Gradient isDarkMode={isDarkMode} />
-          <GlowContainer>
-            <Glow />
-          </GlowContainer>
-          <ContentContainer isDarkMode={isDarkMode}>
-            {/* <TitleText isDarkMode={isDarkMode}>Trade crypto & NFTs with confidence</TitleText> */}
-            <Branding
-              src={soloDarkLogoWithCaption}
-              onClick={() => {
-                navigate({
-                  pathname: '/swap',
-                })
-              }}
-            />
-            <ActionsContainer>
-              <TraceEvent
-                events={[BrowserEvent.onClick]}
-                name={SharedEventName.ELEMENT_CLICKED}
-                element={InterfaceElementName.CONTINUE_BUTTON}
-              >
-                <ButtonCTA as={Link} to="/demo">
-                  <ButtonCTAText>ETHDenver Instructions</ButtonCTAText>
-                </ButtonCTA>
-              </TraceEvent>
-            </ActionsContainer>
-          </ContentContainer>
+          <AboutContentContainer isDarkMode={isDarkMode}>
+            <TitleRow padding="0">
+              <ThemedText.DeprecatedLargeHeader style={{ width: '100%', textAlign: 'center', margin: '40px' }}>
+                ETHDenver Instructions
+              </ThemedText.DeprecatedLargeHeader>
+            </TitleRow>
+            <CardGrid cols={2}>
+              {MORE_CARDS.map(({ darkIcon, lightIcon, onClick, ...card }) => (
+                <Card
+                  {...card}
+                  icon={isDarkMode ? darkIcon : lightIcon}
+                  key={card.title}
+                  type={CardType.Secondary}
+                  onClick={onClick}
+                />
+              ))}
+            </CardGrid>
+          </AboutContentContainer>
         </PageContainer>
       )}
     </Trace>

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unused-modules */
 import { InterfaceElementName } from '@uniswap/analytics-events'
 import { DollarSign, Terminal } from 'react-feather'
 import styled from 'styled-components/macro'
@@ -40,13 +41,23 @@ const StyledCardLogo = styled.img`
 
 export const MORE_CARDS = [
   {
+    to: 'https://www.alchemy.com/overviews/mumbai-testnet#how-to-get-started-using-the-mumbai-testnet',
+    external: true,
+    title: 'Connect Wallet',
+    description: 'Connect your wallet to our Dapp on Mumbai testnet ',
+    lightIcon: <Terminal color={lightTheme.textTertiary} size={48} />,
+    darkIcon: <StyledCardLogo src={darkTerminalImgSrc} alt="Developers" />,
+    cta: 'Instructions',
+    elementName: InterfaceElementName.ABOUT_PAGE_DEV_DOCS_CARD,
+  },
+  {
     to: 'https://support.uniswap.org/hc/en-us/articles/11306574799117-How-to-use-Moon-Pay-on-the-Uniswap-web-app-',
     external: true,
-    title: 'Buy crypto',
-    description: 'Buy crypto with your credit card or bank account at the best rates.',
+    title: 'Get tokens',
+    description: 'Use our faucet to load your wallet with tokens.',
     lightIcon: <DollarSign color={lightTheme.textTertiary} size={48} />,
     darkIcon: <StyledCardLogo src={darkDollarImgSrc} alt="Earn" />,
-    cta: 'Buy now',
+    cta: 'Get WETH & DAI',
     elementName: InterfaceElementName.ABOUT_PAGE_BUY_CRYPTO_CARD,
   },
   {

@@ -10,7 +10,9 @@ import SOLO_WETH_DAI_ABI from 'abis/solo/SoloWETHDAIPool.json'
 import WETH_ABI from 'abis/solo/WETH_solo.json'
 import { sendEvent } from 'components/analytics'
 import Loader from 'components/Loader'
+import Modal from 'components/Modal'
 import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter'
+import { TransactionSubmittedContent } from 'components/TransactionConfirmationModal'
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { ethers } from 'ethers'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -87,10 +89,10 @@ export default function SoloDeposit() {
   const wethContract = new ethers.Contract('0xCC57bcE47D2d624668fe1A388758fD5D91065d33', WETH_ABI, signer)
   const daiContract = new ethers.Contract('0xB704143D415d6a3a9e851DA5e76B64a5D99d718b', WETH_ABI, signer)
 
-  const soloPoolContract = new ethers.Contract('0xF2EEd1CB7c599f9191eCE6E30f1e8339d8a20155', SOLO_WETH_DAI_ABI, signer)
+  const soloPoolContract = new ethers.Contract('0x2602ec23b476199e201257f04C260B4487D46Ab5', SOLO_WETH_DAI_ABI, signer)
 
   const soloPoolContractStatic = new ethers.Contract(
-    '0xF2EEd1CB7c599f9191eCE6E30f1e8339d8a20155',
+    '0x2602ec23b476199e201257f04C260B4487D46Ab5',
     SOLO_WETH_DAI_ABI,
     provider
   )
@@ -146,6 +148,8 @@ export default function SoloDeposit() {
   // modal and loading
   const [showConfirm, setShowConfirm] = useState<boolean>(false)
   const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false) // clicked confirm
+  const [isTxnComplete, setIsTxnComplete] = useState<boolean>(false)
+  const [txnHash, setTxnHash] = useState<string>('')
 
   // capital efficiency warning
   const [showCapitalEfficiencyWarning, setShowCapitalEfficiencyWarning] = useState(false)
@@ -191,10 +195,12 @@ export default function SoloDeposit() {
     try {
       const userAddress = await signer?.getAddress()
       const amountToDeposit = ethers.utils.parseEther(formattedAmounts[Field.CURRENCY_A]).toString()
-      await daiContract.approve('0xF2EEd1CB7c599f9191eCE6E30f1e8339d8a20155', amountToDeposit)
-      await soloPoolContract.deposit(amountToDeposit, userAddress, { gasLimit: '1000000' })
+      await daiContract.approve('0x2602ec23b476199e201257f04C260B4487D46Ab5', amountToDeposit)
+      const tx = await soloPoolContract.deposit(amountToDeposit, userAddress, { gasLimit: '1000000' })
       setIsDepositComplete(true)
       setIsDepositing(false)
+      setIsTxnComplete(true)
+      setTxnHash(tx.hash)
     } catch (e) {
       console.error(e)
       setIsDepositComplete(false)
@@ -874,6 +880,25 @@ export default function SoloDeposit() {
               <Buttons />
             </div>
           </Wrapper>
+          <Modal
+            isOpen={isTxnComplete}
+            $scrollOverlay={true}
+            onDismiss={() => {
+              setTxnHash('')
+              setIsTxnComplete(false)
+            }}
+            maxHeight={90}
+          >
+            <TransactionSubmittedContent
+              chainId={80001}
+              hash={txnHash}
+              onDismiss={() => {
+                setTxnHash('')
+                setIsTxnComplete(false)
+              }}
+              currencyToAdd={undefined}
+            />
+          </Modal>
         </PageWrapper>
         {addIsUnsupported && (
           <UnsupportedCurrencyFooter

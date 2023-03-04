@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { ButtonOutlined, ButtonSecondary } from 'components/Button'
+import { ButtonSecondary } from 'components/Button'
 import { DarkCard } from 'components/Card'
 import React from 'react'
 import styled from 'styled-components/macro'
@@ -133,7 +133,7 @@ export default function PositionList({
               </div>
             )
           })}
-          <ButtonOutlined
+          {/* <ButtonOutlined
             onClick={() => {
               return
             }}
@@ -142,7 +142,7 @@ export default function PositionList({
             width="150px"
           >
             Track Rewards
-          </ButtonOutlined>
+          </ButtonOutlined> */}
           <ButtonSecondary
             onClick={handleWithdraw}
             padding="2"
