@@ -356,7 +356,7 @@ export default function Demo() {
       to: 'https://www.mumbaifaucet.com',
       external: true,
       title: '2. Grab Testnet MATIC',
-      description: 'Grab MATIC to transcat on the Polygon Mumbai testnet.',
+      description: 'Grab MATIC to transact on the Polygon Mumbai testnet.',
       lightIcon: <Terminal color={lightTheme.textTertiary} size={48} />,
       darkIcon: <StyledCardLogo src={darkDollarImgSrc} alt="Developers" />,
       cta: 'Grab MATIC',
